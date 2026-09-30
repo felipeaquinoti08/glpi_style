@@ -81,6 +81,14 @@
 .gs-tone-orange { background: var(--gs-tone-orange); }
 .gs-tone-purple { background: var(--gs-tone-purple); }
 .gs-tone-teal { background: var(--gs-tone-teal); }
+.gs-tone-blue { background: #3b82f6; }
+.gs-tone-green { background: #22c55e; }
+.gs-tone-pink { background: #ec4899; }
+
+/* Improvement sections: settings dimmed while the switch is off */
+.gs-section:has(.gs-card--flat input[name$="_enabled"]:not(:checked)) .gs-feature-body {
+    opacity: .5;
+}
 
 .gs-section__head {
     display: flex;
