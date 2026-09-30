@@ -80,7 +80,8 @@
             'gs-form-' + config.formTheme,
             'gs-logo-' + config.logoPosition,
             'gs-align-' + config.textAlign,
-            'gs-btn-' + config.buttonStyle
+            'gs-btn-' + config.buttonStyle,
+            'gs-footer-' + config.footerMode
         );
         if (config.titleDivider) {
             body.classList.add('gs-divider');
@@ -144,17 +145,12 @@
 
         const container = main.querySelector('.container-tight');
         if (container) {
-            const copyright = container.querySelector(':scope > .text-muted');
-            if (copyright && (config.footerMode === 'custom' || config.footerMode === 'hidden')) {
-                copyright.classList.add('gs-hidden');
-            }
+            // The core copyright block is printed *after* the form, so it
+            // doesn't exist yet at this point (mount() runs mid-parse): it
+            // is hidden through the gs-footer-* body class in login.css.
+            // Appended now, the custom text lands right before it.
             if (config.footerText && (config.footerMode === 'custom' || config.footerMode === 'both')) {
-                const footer = el('div', 'gs-footer', config.footerText);
-                if (copyright) {
-                    container.insertBefore(footer, copyright);
-                } else {
-                    container.appendChild(footer);
-                }
+                container.appendChild(el('div', 'gs-footer', config.footerText));
             }
         }
 
