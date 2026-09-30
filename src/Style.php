@@ -166,6 +166,12 @@ class Style
         }
         if ($config['color_menu_bg'] !== '') {
             $root['--glpi-mainmenu-bg'] = $config['color_menu_bg'];
+            // The stock GLPI logo is white: switch to its dark variant on a
+            // light menu (an uploaded logo overrides the image anyway)
+            if (self::contrast($config['color_menu_bg']) !== '#ffffff') {
+                $root['--glpi-logo'] = 'var(--glpi-logo-dark)';
+                $root['--glpi-logo-reduced'] = 'var(--glpi-logo-dark-reduced)';
+            }
         }
         if ($config['color_menu_fg'] !== '') {
             $root['--glpi-mainmenu-fg'] = $config['color_menu_fg'];
@@ -182,7 +188,9 @@ class Style
             $css .= '}';
         }
 
-        $header = 'header.navbar[data-testid="main-header"]';
+        // Vertical menu layout only: with the horizontal menu the header *is*
+        // the menu bar (.topbar) and already follows the menu colors
+        $header = 'header.navbar[data-testid="main-header"]:not(.topbar)';
         if ($config['color_header_bg'] !== '') {
             $css .= $header . '{background-color:' . $config['color_header_bg'] . ' !important;}';
         }

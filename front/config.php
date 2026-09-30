@@ -275,10 +275,10 @@ foreach ([
     'color_primary'   => ['Cor primária', 'Botões principais, abas e destaques.', '#2f6fed'],
     'color_secondary' => ['Cor secundária', 'Botões secundários e textos de apoio.', '#64748b'],
     'color_links'     => ['Cor dos links', '', '#2f6fed'],
-    'color_menu_bg'   => ['Menu lateral - fundo', '', '#1e293b'],
-    'color_menu_fg'   => ['Menu lateral - texto', '', '#ffffff'],
-    'color_header_bg' => ['Cabeçalho / topo - fundo', '', '#ffffff'],
-    'color_header_fg' => ['Cabeçalho / topo - texto', '', '#1e293b'],
+    'color_menu_bg'   => ['Menu - fundo', 'Menu lateral, ou a barra do topo quando o menu está na horizontal.', '#1e293b'],
+    'color_menu_fg'   => ['Menu - texto', 'Menu lateral, ou a barra do topo quando o menu está na horizontal.', '#ffffff'],
+    'color_header_bg' => ['Cabeçalho - fundo', 'Barra de busca/usuário acima do conteúdo. Só existe com o menu na vertical; com o menu horizontal, use as cores do menu.', '#ffffff'],
+    'color_header_fg' => ['Cabeçalho - texto', 'Só existe com o menu na vertical; com o menu horizontal, use as cores do menu.', '#1e293b'],
 ] as $name => [$title, $help_text, $fallback]) {
     $colors .= $card('', $title, $color_opt($name, '', $fallback), $help_text, 'gs-card--color');
 }
