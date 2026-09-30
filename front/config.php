@@ -310,6 +310,7 @@ foreach (Registry::all() as $feature) {
 }
 
 echo '<div class="gs-savebar">';
+echo '<span class="gs-savebar__status" data-dirty-status hidden><i class="ti ti-point-filled"></i> Alterações não salvas</span>';
 echo '<button type="submit" name="reset" value="1" class="btn btn-ghost-secondary" formnovalidate data-confirm="Restaurar cores, textos e posições para o padrão? As imagens enviadas são mantidas."><i class="ti ti-restore"></i> Restaurar padrão</button>';
 echo '<button type="submit" name="update" value="1" class="btn btn-primary"><i class="ti ti-device-floppy"></i> Salvar</button>';
 echo '</div>';
