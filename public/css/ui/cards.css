@@ -1,0 +1,102 @@
+/*
+ * GLPI Style - "Cards e formulários". Values come from CardsFeature::css().
+ * Tabler draws cards, buttons and tables from custom properties, so most
+ * of the work here is setting those instead of fighting the core rules.
+ */
+
+/* ---------- Cards ---------- */
+
+.page-body .card {
+    --tblr-card-border-radius: var(--gs-card-radius);
+    --tblr-card-inner-border-radius: max(0px, calc(var(--gs-card-radius) - 1px));
+    --tblr-card-box-shadow: var(--gs-card-shadow);
+}
+
+.page-body .card:not(.border-0):not(.shadow-none) {
+    border-color: color-mix(in srgb, var(--tblr-border-color) 80%, transparent);
+    box-shadow: var(--gs-card-shadow);
+}
+
+.page-body .card-header.main-header .card-title {
+    font-weight: 650;
+    letter-spacing: -.01em;
+}
+
+/* ---------- Fields ---------- */
+
+.page-body .form-control,
+.page-body .form-select,
+.page-body .select2-container .select2-selection {
+    border-radius: var(--gs-field-radius);
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.page-body .select2-container .select2-selection {
+    border-radius: var(--gs-field-radius) !important;
+}
+
+.page-body .form-control:focus,
+.page-body .form-select:focus,
+.page-body .select2-container--focus .select2-selection,
+.page-body .select2-container--open .select2-selection {
+    border-color: var(--tblr-primary) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tblr-primary) 18%, transparent) !important;
+}
+
+.page-body .form-field .col-form-label {
+    color: color-mix(in srgb, var(--tblr-body-color) 82%, transparent);
+    font-weight: 500;
+}
+
+.page-body .form-check-input:checked {
+    border-color: var(--tblr-primary);
+    background-color: var(--tblr-primary);
+}
+
+/* ---------- Buttons ---------- */
+
+.page-body .btn {
+    --tblr-btn-border-radius: var(--gs-btn-radius);
+    transition: background-color .15s ease, border-color .15s ease, box-shadow .2s ease, transform .15s ease;
+}
+
+.page-body .btn-primary:not(.btn-icon) {
+    box-shadow: 0 8px 18px -10px color-mix(in srgb, var(--tblr-primary) 80%, transparent);
+}
+
+.page-body .btn-primary:not(:disabled):hover {
+    transform: translateY(-1px);
+}
+
+.page-body .btn:active {
+    transform: none;
+}
+
+/* Form footer (Salvar / Excluir...) */
+.page-body .form-button-separator {
+    gap: .5rem;
+    border-bottom-left-radius: var(--tblr-card-inner-border-radius);
+    border-bottom-right-radius: var(--tblr-card-inner-border-radius);
+    background: color-mix(in srgb, var(--tblr-body-color) 2%, var(--tblr-bg-surface));
+}
+
+/* ---------- Dropdowns ---------- */
+
+.page-body .dropdown-menu {
+    border-radius: calc(var(--gs-field-radius) + 2px);
+    box-shadow: 0 16px 36px -14px rgba(15, 23, 42, .28), 0 0 0 1px rgba(15, 23, 42, .05);
+}
+
+.select2-dropdown {
+    overflow: hidden;
+    border-radius: var(--gs-field-radius) !important;
+    box-shadow: 0 16px 36px -14px rgba(15, 23, 42, .28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-body .btn,
+    .page-body .form-control,
+    .page-body .form-select {
+        transition: none !important;
+    }
+}
