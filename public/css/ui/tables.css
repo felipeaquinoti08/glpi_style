@@ -1,0 +1,63 @@
+/*
+ * GLPI Style - "Listas e tabelas". Values and optional rules come from
+ * TablesFeature::css(); these are the always-on refinements.
+ */
+
+.page-body .search-results.table > tbody > tr > td {
+    transition: box-shadow .12s ease;
+}
+
+.page-body .search-results.table > tbody a:not(.btn) {
+    text-decoration: none;
+    text-underline-offset: 3px;
+}
+
+.page-body .search-results.table > tbody a:not(.btn):hover {
+    text-decoration: underline;
+}
+
+/* Header toolbar and massive actions */
+.page-body .search-card .search-header .btn {
+    border-radius: var(--gs-btn-radius, var(--tblr-border-radius));
+}
+
+/* Pager */
+.page-body .search-pager .pagination {
+    gap: 4px;
+}
+
+.page-body .search-pager .pagination .page-link {
+    min-width: 32px;
+    border: 0;
+    border-radius: var(--gs-btn-radius, 8px);
+    text-align: center;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.page-body .search-pager .pagination .page-link:hover {
+    background-color: color-mix(in srgb, var(--tblr-primary) 10%, transparent);
+    color: var(--tblr-primary);
+}
+
+.page-body .search-pager .pagination .page-item.active .page-link {
+    background-color: var(--tblr-primary);
+    color: var(--tblr-primary-fg, #ffffff);
+    font-weight: 600;
+    box-shadow: 0 6px 14px -8px color-mix(in srgb, var(--tblr-primary) 80%, transparent);
+}
+
+/* Search criteria panel */
+.page-body .search-form-container .search-form.card {
+    border-radius: var(--gs-card-radius, var(--tblr-border-radius-lg));
+}
+
+.page-body .search-form-container .criteria-list .list-group-item {
+    border-color: color-mix(in srgb, var(--tblr-border-color) 70%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-body .search-results.table > tbody > tr > td,
+    .page-body .search-pager .page-link {
+        transition: none !important;
+    }
+}
