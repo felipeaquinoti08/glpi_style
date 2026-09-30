@@ -1,6 +1,7 @@
 <?php
 
 use GlpiPlugin\Glpistyle\Config;
+use GlpiPlugin\Glpistyle\Ui\Registry;
 
 Session::checkRight('config', UPDATE);
 
@@ -169,7 +170,8 @@ Html::header('GLPI Style', $_SERVER['PHP_SELF'], 'config', 'plugin');
 
 echo '<link rel="stylesheet" href="' . $e($plugin_url . '/' . plugin_glpistyle_resource('config.css', 'css/config.css')) . '">';
 
-echo '<div class="gs-editor" id="gs-editor" data-preview-url="' . $e($plugin_url . '/front/preview.php') . '">';
+echo '<div class="gs-editor" id="gs-editor" data-preview-url="' . $e($plugin_url . '/front/preview.php') . '"'
+    . ' data-live-css-url="' . $e($plugin_url . '/front/live.css.php') . '">';
 
 echo '<form class="gs-editor__form" id="gs-editor-form" method="post" action="' . $e($self_url) . '" enctype="multipart/form-data">';
 
@@ -284,6 +286,16 @@ foreach ([
 }
 $colors .= '</div>';
 echo $section('colors', 'ti-brush', 'purple', 'Cores', 'Aplicadas por cima do tema de cores escolhido por cada usuário', $colors);
+
+// --- Interface improvements (src/Ui/*Feature.php) -------------------------
+$ui = compact('card', 'switch', 'text', 'textarea', 'number', 'select', 'range', 'color', 'color_opt', 'help', 'e');
+foreach (Registry::all() as $feature) {
+    $body = '<div class="gs-card gs-card--flat">'
+        . $switch($feature::enabledField(), 'Ativar esta melhoria', 'Desligada, esta parte do GLPI fica exatamente como o GLPI desenha.')
+        . '</div>'
+        . '<div class="gs-feature-body">' . $feature::section($ui, $config) . '</div>';
+    echo $section('ui-' . $feature::key(), $feature::icon(), $feature::tone(), $feature::title(), $feature::subtitle(), $body);
+}
 
 echo '<div class="gs-savebar">';
 echo '<button type="submit" name="reset" value="1" class="btn btn-ghost-secondary" formnovalidate data-confirm="Restaurar cores, textos e posições para o padrão? As imagens enviadas são mantidas."><i class="ti ti-restore"></i> Restaurar padrão</button>';

@@ -18,10 +18,19 @@ const GLPISTYLE_RESOURCES = [
 ];
 
 $key = (string) ($_GET['f'] ?? '');
-if (!isset(GLPISTYLE_RESOURCES[$key])) {
+if (isset(GLPISTYLE_RESOURCES[$key])) {
+    [$file, $type] = GLPISTYLE_RESOURCES[$key];
+} elseif (
+    // Interface improvements: ui-<key>.css => public/css/ui/<key>.css
+    preg_match('/^ui-([a-z0-9_]+)\.css$/', $key, $matches) === 1
+    && ($feature = \GlpiPlugin\Glpistyle\Ui\Registry::get($matches[1])) !== null
+    && $feature::hasCssFile()
+) {
+    $file = $feature::cssFile();
+    $type = 'text/css; charset=UTF-8';
+} else {
     return new Response('', 404);
 }
-[$file, $type] = GLPISTYLE_RESOURCES[$key];
 
 $response = new BinaryFileResponse(dirname(__DIR__) . '/public/' . $file, 200, [
     'Content-Type'           => $type,

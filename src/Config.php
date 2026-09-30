@@ -3,6 +3,7 @@
 namespace GlpiPlugin\Glpistyle;
 
 use Config as GlpiConfig;
+use GlpiPlugin\Glpistyle\Ui\Registry;
 use RuntimeException;
 
 /**
@@ -133,6 +134,11 @@ class Config
      *  - lines:     extra = max number of lines (each max 120 chars)
      */
     private static function schema(): array
+    {
+        return self::coreSchema() + Registry::schema();
+    }
+
+    private static function coreSchema(): array
     {
         return [
             // Login - general

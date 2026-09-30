@@ -4,6 +4,7 @@ use Glpi\Http\Firewall;
 use Glpi\Plugin\Hooks;
 use GlpiPlugin\Glpistyle\Config;
 use GlpiPlugin\Glpistyle\Login;
+use GlpiPlugin\Glpistyle\Ui\Registry;
 
 define('PLUGIN_GLPISTYLE_VERSION', '1.0.0');
 define('PLUGIN_GLPISTYLE_MIN_GLPI_VERSION', '11.0.0');
@@ -63,6 +64,14 @@ function plugin_init_glpistyle(): void
     $style_css = 'front/style.css.php?r=' . $config['revision'];
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['glpistyle'] = [$style_css];
     $PLUGIN_HOOKS[Hooks::ADD_CSS_ANONYMOUS_PAGE]['glpistyle'] = [$style_css];
+
+    // Interface improvements ("visual interno"): static rules of the
+    // enabled ones, their generated CSS goes through style.css.php
+    foreach (Registry::enabled($config) as $feature) {
+        if ($feature::hasCssFile()) {
+            $PLUGIN_HOOKS[Hooks::ADD_CSS]['glpistyle'][] = plugin_glpistyle_resource('ui-' . $feature::key() . '.css', $feature::cssFile());
+        }
+    }
 
     if ($config['favicon'] !== '') {
         // The core <link rel="shortcut icon"> is printed after plugin header

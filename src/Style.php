@@ -2,6 +2,8 @@
 
 namespace GlpiPlugin\Glpistyle;
 
+use GlpiPlugin\Glpistyle\Ui\Registry;
+
 /**
  * Builds the CSS generated from the settings. Only values that went
  * through Config::sanitize() (hex colors, clamped ints, whitelisted enums)
@@ -114,7 +116,19 @@ class Style
      */
     public static function globalCss(array $config): string
     {
-        $css = self::colorsCss($config);
+        // @import must precede every other rule of the stylesheet
+        $imports = [];
+        $features_css = '';
+        foreach (Registry::enabled($config) as $feature) {
+            $imports = array_merge($imports, $feature::imports($config));
+            $features_css .= $feature::css($config);
+        }
+
+        $css = '';
+        foreach (array_unique($imports) as $url) {
+            $css .= '@import url("' . $url . '");' . "\n";
+        }
+        $css .= self::colorsCss($config) . $features_css;
 
         if (Config::getAssetPath('logo_full', $config) !== null) {
             $url = Config::getAssetUrl('logo_full', $config);

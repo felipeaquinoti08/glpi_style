@@ -1,9 +1,12 @@
 /*
- * GLPI Style - config page: live preview drawer and form helpers.
+ * GLPI Style - config page: live previews and form helpers.
  *
- * The preview renders front/preview.php with the unsaved values in the
- * query string. A new iframe is loaded in the background and swapped in
- * once ready, so editing never flashes a blank frame.
+ * - Login: the drawer renders front/preview.php with the unsaved values in
+ *   the query string. A new iframe is loaded in the background and swapped
+ *   in once ready, so editing never flashes a blank frame.
+ * - Internal interface: this page is itself an internal GLPI page, so the
+ *   CSS computed by front/live.css.php from the same values replaces the
+ *   plugin's regular stylesheets right here while editing.
  */
 (function () {
     'use strict';
@@ -47,6 +50,7 @@
     const PRESET_FIELDS = ['color_primary', 'color_secondary', 'color_links', 'color_menu_bg', 'color_menu_fg', 'color_header_bg', 'color_header_fg'];
 
     const previewUrl = editor.dataset.previewUrl;
+    const liveCssUrl = editor.dataset.liveCssUrl;
     const devices = {
         desktop: [1440, 900],
         tablet: [834, 1112],
@@ -57,7 +61,7 @@
 
     // ---------------------------------------------------------------- preview
 
-    function buildUrl() {
+    function buildParams() {
         const params = new URLSearchParams();
         params.set('_live', '1');
         new FormData(form).forEach(function (value, name) {
@@ -66,7 +70,34 @@
             }
             params.append(name, value);
         });
-        return previewUrl + '?' + params.toString();
+        return params.toString();
+    }
+
+    function buildUrl() {
+        return previewUrl + '?' + buildParams();
+    }
+
+    let liveLink = null;
+    function refreshLiveCss() {
+        if (!liveCssUrl) {
+            return;
+        }
+        const next = document.createElement('link');
+        next.rel = 'stylesheet';
+        next.href = liveCssUrl + '?' + buildParams();
+        next.addEventListener('load', function () {
+            document.querySelectorAll(
+                'link[rel="stylesheet"][href*="/plugins/glpistyle/front/style.css.php"],'
+                + 'link[rel="stylesheet"][href*="/plugins/glpistyle/front/resource.php?f=ui-"]'
+            ).forEach(function (link) {
+                link.disabled = true;
+            });
+            if (liveLink && liveLink !== next) {
+                liveLink.remove();
+            }
+            liveLink = next;
+        });
+        document.head.appendChild(next);
     }
 
     function isOpen() {
@@ -125,7 +156,10 @@
     function scheduleRefresh() {
         dirty = true;
         clearTimeout(timer);
-        timer = setTimeout(refresh, 350);
+        timer = setTimeout(function () {
+            refresh();
+            refreshLiveCss();
+        }, 350);
     }
 
     function setPreview(open) {
@@ -270,7 +304,7 @@
             checkbox.checked = !values;
             syncDefault(checkbox);
         });
-        dirty = true;
+        scheduleRefresh();
     }
 
     form.addEventListener('submit', function (e) {
