@@ -82,8 +82,7 @@ Quatro melhorias independentes. Cada uma tem a sua chave "Ativar esta melhoria" 
 ### Editor
 
 - Página **Identidade visual**, organizada em seções recolhíveis, com ajuda (**?**) em cada campo.
-- **Prévia ao vivo da tela de login** em uma gaveta lateral, nos formatos computador, tablet e celular, atualizada enquanto você edita.
-- **Prévia ao vivo do visual interno na própria página de configuração**: cores, presets e melhorias aparecem na hora, antes de salvar.
+- **Prévia sob demanda** em uma gaveta lateral, fechada até você clicar em **Prévia**. Ela mostra a **tela de login** e páginas internas reais (**página inicial, lista de chamados, formulário de chamado e lista de computadores**) com as alterações ainda não salvas, nos formatos computador, tablet e celular. Nas páginas internas dá para passar o mouse e ver os efeitos; links e envios de formulário ficam desativados.
 - Aviso ao sair da página com alterações não salvas, e botão **Restaurar padrão** (as imagens enviadas são mantidas).
 
 ---
@@ -140,10 +139,10 @@ docker exec -u www-data <contêiner-do-glpi> php bin/console plugin:activate glp
 ## Primeiros passos
 
 1. Abra **Configurar > Plugins > GLPI Style** (engrenagem).
-2. Em **Tela de login**, envie o logo e a imagem de fundo e escolha a posição da caixa. Acompanhe tudo na **Prévia ao vivo**.
+2. Em **Tela de login**, envie o logo e a imagem de fundo e escolha a posição da caixa. Clique em **Prévia** para acompanhar.
 3. Em **Página interna**, envie o logo do cabeçalho e o favicon.
 4. Em **Cores**, escolha um preset ou ajuste as cores uma a uma.
-5. Ligue as **melhorias do visual interno** que quiser. O efeito aparece na própria página enquanto você edita.
+5. Ligue as **melhorias do visual interno** que quiser. Na **Prévia**, escolha uma página interna (lista de chamados, formulário...) para ver o efeito antes de salvar.
 6. Clique em **Salvar**.
 
 > **Dica:** imagens novas só aparecem na prévia depois de salvar. Cores, textos e posições aparecem na hora.
@@ -263,7 +262,7 @@ Desligue a melhoria correspondente no editor: aquela parte volta exatamente ao p
 
 - **Tela de login**: o plugin usa o hook `display_login` do GLPI. Um script pequeno reorganiza a página enquanto ela carrega, antes do primeiro desenho da tela. O template do core não é tocado.
 - **Visual interno**: o CSS é carregado pelos hooks `add_css`. As regras estáticas só consomem variáveis CSS, e os valores configurados são gerados por `front/style.css.php`. Cards, botões e tabelas são ajustados pelas próprias variáveis do Tabler (framework visual do GLPI 11), evitando brigar com as regras do core.
-- **Prévias**: `front/preview.php` renderiza o template real de login do GLPI com os valores ainda não salvos. `front/live.css.php` calcula o CSS interno a partir desses mesmos valores e o aplica na página de configuração.
+- **Prévias**: `front/preview.php` renderiza o template real de login do GLPI com os valores ainda não salvos. Para as páginas internas, a prévia carrega a página real do GLPI e substitui nela o CSS do plugin pelo que `front/live.css.php` calcula a partir desses mesmos valores.
 
 ### Estrutura
 
@@ -274,7 +273,7 @@ glpistyle/
 ├── front/
 │   ├── config.php            # editor "Identidade visual"
 │   ├── preview.php           # prévia da tela de login
-│   ├── live.css.php          # prévia do visual interno
+│   ├── live.css.php          # CSS não salvo para a prévia das páginas internas
 │   ├── style.css.php         # CSS gerado (logos, favicon, cores, melhorias)
 │   ├── asset.php             # entrega das imagens enviadas
 │   └── resource.php          # entrega do CSS/JS do plugin
