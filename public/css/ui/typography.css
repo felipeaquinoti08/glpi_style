@@ -1,0 +1,22 @@
+/*
+ * GLPI Style - "Fonte e densidade". Everything configurable comes from
+ * TypographyFeature::css() (Tabler font/size custom properties); this
+ * only makes sure form controls follow the chosen font.
+ */
+
+body,
+.form-control,
+.form-select,
+.btn,
+.select2-container,
+.select2-dropdown,
+.dropdown-menu,
+.tox-tinymce {
+    font-family: var(--tblr-body-font-family);
+}
+
+body {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
