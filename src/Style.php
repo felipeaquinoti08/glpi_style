@@ -21,6 +21,11 @@ class Style
         'bl' => ['flex-start', 'flex-end'],   'bc' => ['center', 'flex-end'],   'br' => ['flex-end', 'flex-end'],
     ];
 
+    private const HERO_WIDTHS = ['sm' => 440, 'md' => 580, 'lg' => 760];
+
+    private const TEXT_ALIGN_OF = ['flex-start' => 'left', 'center' => 'center', 'flex-end' => 'right'];
+    private const FLEX_OF = ['left' => 'flex-start', 'center' => 'center', 'right' => 'flex-end'];
+
     private const BG_FITS = [
         'cover'   => ['cover', 'no-repeat'],
         'contain' => ['contain', 'no-repeat'],
@@ -37,6 +42,12 @@ class Style
         $has_bg = Config::getAssetPath('login_bg', $config) !== null;
         [$h, $v] = self::GRID[$config['login_position']] ?? ['center', 'center'];
         [$size, $repeat] = self::BG_FITS[$config['login_bg_fit']];
+        [$hero_h, $hero_v] = self::GRID[$config['hero_position']] ?? ['flex-start', 'center'];
+        $hero_align = $config['hero_align'] === 'auto' ? self::TEXT_ALIGN_OF[$hero_h] : $config['hero_align'];
+        // Glass behind the hero texts: dark tint under light text, light under dark
+        $hero_backdrop = self::contrast($config['hero_text_color']) === '#ffffff'
+            ? 'rgba(255,255,255,.62)'
+            : 'rgba(10,14,30,.32)';
 
         $vars = [
             '--gs-font'        => $font[2],
@@ -56,6 +67,12 @@ class Style
             '--gs-c3'          => $config['login_bg_color3'],
             '--gs-angle'       => $config['login_bg_angle'] . 'deg',
             '--gs-hero-text'   => $config['hero_text_color'],
+            '--gs-hero-h'      => $hero_h,
+            '--gs-hero-v'      => $hero_v,
+            '--gs-hero-align'  => $hero_align,
+            '--gs-hero-items'  => self::FLEX_OF[$hero_align],
+            '--gs-hero-w'      => self::HERO_WIDTHS[$config['hero_width']] . 'px',
+            '--gs-hero-backdrop' => $hero_backdrop,
             // Without a photo the gradient is the background itself
             '--gs-overlay'     => $has_bg ? (string) ($config['login_overlay_opacity'] / 100) : '1',
             '--gs-image'       => $has_bg ? 'url("' . Config::getAssetUrl('login_bg', $config) . '")' : 'none',

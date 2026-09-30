@@ -34,6 +34,27 @@ class Config
         'panel_right' => 'Painel lateral direito (altura total)',
     ];
 
+    /** Grid positions only (no side panels): used by the hero content */
+    public const GRID_POSITIONS = ['tl', 'tc', 'tr', 'ml', 'mc', 'mr', 'bl', 'bc', 'br'];
+
+    public const HERO_ALIGNS = [
+        'auto'   => 'Automático (segue a posição)',
+        'left'   => 'À esquerda',
+        'center' => 'Centralizado',
+        'right'  => 'À direita',
+    ];
+
+    public const HERO_WIDTHS = [
+        'sm' => 'Estreito',
+        'md' => 'Médio',
+        'lg' => 'Largo',
+    ];
+
+    public const HERO_BACKDROPS = [
+        'none'  => 'Sem fundo (texto direto sobre a imagem)',
+        'glass' => 'Cartão de vidro (melhora a leitura sobre fotos)',
+    ];
+
     public const BOX_WIDTHS = [
         'sm' => 'Pequena',
         'md' => 'Média',
@@ -177,6 +198,11 @@ class Config
 
             // Login - hero texts (side panel layouts)
             'hero_text_color'       => ['color', '#ffffff'],
+            'hero_position'         => ['enum', 'ml', self::GRID_POSITIONS],
+            'hero_align'            => ['enum', 'auto', array_keys(self::HERO_ALIGNS)],
+            'hero_width'            => ['enum', 'md', array_keys(self::HERO_WIDTHS)],
+            'hero_backdrop'         => ['enum', 'none', array_keys(self::HERO_BACKDROPS)],
+            'hero_in_card'          => ['bool', 0],
             'hero_badge'            => ['text', 'Central de Serviços de TI', 60],
             'hero_title'            => ['text', 'Tudo o que você precisa, em um só lugar.', 120],
             'hero_subtitle'         => ['text', 'Abra chamados, acompanhe solicitações e encontre respostas rápidas na nossa base de conhecimento.', 300],

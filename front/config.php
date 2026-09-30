@@ -142,20 +142,24 @@ $upload = static function (string $slot, string $hint, string $extra = '') use (
         . $extra . '</div>';
 };
 
-$position_picker = static function () use ($config, $e): string {
+/** 3x3 grid (+ the two side panels when $with_panels) bound to the $name enum */
+$position_picker = static function (string $name, bool $with_panels) use ($config, $e): string {
+    $radio = static fn(string $pos): string => '<input type="radio" name="' . $name . '" value="' . $pos . '" data-label="' . $e(Config::POSITIONS[$pos]) . '"'
+        . ($config[$name] === $pos ? ' checked' : '') . '>';
+
     $html = '<div class="gs-position" role="radiogroup" aria-label="Posição na tela"><div class="gs-position__grid">';
-    foreach (['tl', 'tc', 'tr', 'ml', 'mc', 'mr', 'bl', 'bc', 'br'] as $pos) {
-        $html .= '<label class="gs-position__cell" title="' . $e(Config::POSITIONS[$pos]) . '">'
-            . '<input type="radio" name="login_position" value="' . $pos . '" data-label="' . $e(Config::POSITIONS[$pos]) . '"' . ($config['login_position'] === $pos ? ' checked' : '') . '>'
-            . '<span></span></label>';
+    foreach (Config::GRID_POSITIONS as $pos) {
+        $html .= '<label class="gs-position__cell" title="' . $e(Config::POSITIONS[$pos]) . '">' . $radio($pos) . '<span></span></label>';
     }
-    $html .= '</div><div class="gs-position__panels">';
-    foreach (['panel_left', 'panel_right'] as $pos) {
-        $html .= '<label class="gs-position__panel gs-position__panel--' . $pos . '" title="' . $e(Config::POSITIONS[$pos]) . '">'
-            . '<input type="radio" name="login_position" value="' . $pos . '" data-label="' . $e(Config::POSITIONS[$pos]) . '"' . ($config['login_position'] === $pos ? ' checked' : '') . '>'
-            . '<span></span></label>';
+    $html .= '</div>';
+    if ($with_panels) {
+        $html .= '<div class="gs-position__panels">';
+        foreach (['panel_left', 'panel_right'] as $pos) {
+            $html .= '<label class="gs-position__panel gs-position__panel--' . $pos . '" title="' . $e(Config::POSITIONS[$pos]) . '">' . $radio($pos) . '<span></span></label>';
+        }
+        $html .= '</div>';
     }
-    $html .= '</div><div class="gs-position__label" data-position-label>' . $e(Config::POSITIONS[$config['login_position']]) . '</div></div>';
+    $html .= '<div class="gs-position__label" data-position-label>' . $e(Config::POSITIONS[$config[$name]]) . '</div></div>';
     return $html;
 };
 
@@ -200,7 +204,7 @@ $login .= $card('ti-background', 'Background do login', $upload(
 $login .= '</div>';
 
 $login .= '<div class="gs-row gs-row--3">';
-$login .= $card('ti-layout-board', 'Posição na tela', $position_picker()
+$login .= $card('ti-layout-board', 'Posição na tela', $position_picker('login_position', true)
     . $select('login_box_width', 'Largura da caixa', Config::BOX_WIDTHS), 'Escolha um ponto da grade para uma caixa flutuante sobre o fundo, ou um painel lateral de altura total.');
 $login .= $card('ti-droplet', 'Fundo da caixa', $color_opt('login_box_bg', '', '#ffffff')
     . $range('login_box_opacity', 'Opacidade do fundo', 0, 100, '%', 5)
@@ -247,14 +251,22 @@ $bg .= '</div>';
 echo $section('background', 'ti-palette', 'purple', 'Fundo e efeitos', 'Gradiente, textura e animação do fundo do login', $bg);
 
 // --- Hero ----------------------------------------------------------------
-$hero = '<div class="gs-row gs-row--2">';
+$hero = '<div class="gs-row gs-row--3">';
+$hero .= $card('ti-layout-board', 'Posição do painel', $position_picker('hero_position', false)
+    . $select('hero_width', 'Largura', Config::HERO_WIDTHS), 'Onde os textos ficam dentro da área da imagem (ao lado do painel lateral, ou na tela inteira com caixa flutuante).');
+$hero .= $card('ti-align-center', 'Aparência', $select('hero_align', 'Alinhamento do texto', Config::HERO_ALIGNS)
+    . $select('hero_backdrop', 'Fundo', Config::HERO_BACKDROPS)
+    . $color('hero_text_color', 'Cor dos textos'));
+$hero .= $card('ti-layout-2', 'Quando exibir', $switch('hero_in_card', 'Exibir também com caixa flutuante', 'Por padrão o painel só aparece nos layouts de painel lateral. Ligado, aparece também com a caixa na grade: escolha para ele uma posição que não fique atrás da caixa.')
+    . '<p class="form-text m-0">Em telas com menos de 1100px de largura o painel é ocultado para dar espaço ao formulário.</p>');
+$hero .= '</div>';
+$hero .= '<div class="gs-row gs-row--2">';
 $hero .= $card('ti-speakerphone', 'Textos', $text('hero_badge', 'Selo', 60, 'Central de Serviços de TI')
     . $text('hero_title', 'Título', 120)
     . $textarea('hero_subtitle', 'Subtítulo', 3));
-$hero .= $card('ti-list-check', 'Destaques', $textarea('hero_features', 'Um por linha (até 6)', 5)
-    . $color('hero_text_color', 'Cor dos textos'), 'Deixe todos os campos em branco para mostrar apenas a imagem.');
+$hero .= $card('ti-list-check', 'Destaques', $textarea('hero_features', 'Um por linha (até 6)', 5), 'Deixe todos os campos em branco para mostrar apenas a imagem.');
 $hero .= '</div>';
-echo $section('hero', 'ti-layout-sidebar-right', 'teal', 'Painel de destaque', 'Textos exibidos sobre o fundo nos layouts de painel lateral, em telas grandes', $hero);
+echo $section('hero', 'ti-layout-sidebar-right', 'teal', 'Painel de destaque', 'Selo, título e destaques sobre o fundo: posição, largura, alinhamento e fundo', $hero);
 
 // --- Internal pages ------------------------------------------------------
 $internal = '<div class="gs-row gs-row--3">';

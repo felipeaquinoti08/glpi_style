@@ -89,6 +89,12 @@
         if (config.glass) {
             body.classList.add('gs-glass');
         }
+        if (config.heroInCard) {
+            body.classList.add('gs-hero-in-card');
+        }
+        if (config.heroBackdrop === 'glass') {
+            body.classList.add('gs-hero-glass');
+        }
         if (config.animated) {
             body.classList.add('gs-animated');
         }
