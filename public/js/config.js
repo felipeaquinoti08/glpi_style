@@ -1,12 +1,10 @@
 /*
- * GLPI Style - config page: live previews and form helpers.
+ * GLPI Style - config page: preview drawer and form helpers.
  *
- * - Login: the drawer renders front/preview.php with the unsaved values in
- *   the query string. A new iframe is loaded in the background and swapped
- *   in once ready, so editing never flashes a blank frame.
- * - Internal interface: this page is itself an internal GLPI page, so the
- *   CSS computed by front/live.css.php from the same values replaces the
- *   plugin's regular stylesheets right here while editing.
+ * The drawer shows the unsaved values on the login page or on real
+ * internal pages (see the preview section). A new iframe is loaded in the
+ * background and swapped in once ready, so it never flashes blank. The
+ * editor page itself always keeps the saved look.
  */
 (function () {
     'use strict';
@@ -60,6 +58,19 @@
     let dirty = false;
 
     // ---------------------------------------------------------------- preview
+    //
+    // Closed on every page load: nothing is requested until "Prévia" is
+    // clicked. Targets:
+    // - login: front/preview.php renders the core login template with the
+    //   unsaved values (query string); reloaded on each change.
+    // - internal pages: the real GLPI page, same origin, in which the CSS
+    //   computed by front/live.css.php replaces the plugin's stylesheets.
+    //   Changes only swap that stylesheet, the page is not reloaded.
+
+    const targetSelect = drawer.querySelector('[data-preview-target]');
+    const note = drawer.querySelector('[data-preview-note]');
+    const PLUGIN_STYLESHEETS = 'link[rel="stylesheet"][href*="/plugins/glpistyle/front/style.css.php"],'
+        + 'link[rel="stylesheet"][href*="/plugins/glpistyle/front/resource.php?f=ui-"]';
 
     function buildParams() {
         const params = new URLSearchParams();
@@ -73,31 +84,13 @@
         return params.toString();
     }
 
-    function buildUrl() {
-        return previewUrl + '?' + buildParams();
+    function target() {
+        return targetSelect ? targetSelect.value : 'login';
     }
 
-    let liveLink = null;
-    function refreshLiveCss() {
-        if (!liveCssUrl) {
-            return;
-        }
-        const next = document.createElement('link');
-        next.rel = 'stylesheet';
-        next.href = liveCssUrl + '?' + buildParams();
-        next.addEventListener('load', function () {
-            document.querySelectorAll(
-                'link[rel="stylesheet"][href*="/plugins/glpistyle/front/style.css.php"],'
-                + 'link[rel="stylesheet"][href*="/plugins/glpistyle/front/resource.php?f=ui-"]'
-            ).forEach(function (link) {
-                link.disabled = true;
-            });
-            if (liveLink && liveLink !== next) {
-                liveLink.remove();
-            }
-            liveLink = next;
-        });
-        document.head.appendChild(next);
+    function targetUrl() {
+        const option = targetSelect && targetSelect.selectedOptions[0];
+        return option ? option.dataset.url : previewUrl;
     }
 
     function isOpen() {
@@ -119,20 +112,62 @@
         });
     }
 
-    let pending = null;
-    function refresh() {
-        const url = buildUrl();
-        if (openLink) {
-            openLink.href = url;
-        }
-        if (!isOpen()) {
+    /** Swaps the unsaved-values stylesheet inside an internal page */
+    function applyLiveCss(doc) {
+        if (!doc || !doc.head || !liveCssUrl) {
             return;
         }
+        const next = doc.createElement('link');
+        next.rel = 'stylesheet';
+        next.href = liveCssUrl + '?' + buildParams();
+        next.dataset.gsLive = '1';
+        next.addEventListener('load', function () {
+            doc.querySelectorAll(PLUGIN_STYLESHEETS).forEach(function (link) {
+                link.disabled = true;
+            });
+            doc.querySelectorAll('link[data-gs-live]').forEach(function (link) {
+                if (link !== next) {
+                    link.remove();
+                }
+            });
+        });
+        doc.head.appendChild(next);
+    }
+
+    /**
+     * The internal preview is a real, logged-in GLPI page: hovering is fine,
+     * but following links or submitting forms from it must not happen.
+     */
+    function makeInert(doc) {
+        doc.addEventListener('click', function (e) {
+            const link = e.target.closest('a[href]');
+            const href = link ? link.getAttribute('href') : '';
+            if (link && href !== '' && !href.startsWith('#') && !href.startsWith('javascript:')) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const button = e.target.closest('button[type="submit"], input[type="submit"], button:not([type])');
+            if (button && button.form) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
+        doc.addEventListener('submit', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }, true);
+    }
+
+    let frame = null;
+    let frameTarget = null;
+    let pending = null;
+
+    function load(url, onReady) {
         if (pending) {
             pending.remove();
         }
         const next = document.createElement('iframe');
-        next.title = 'Prévia da tela de login';
+        next.title = 'Prévia';
         next.className = 'is-loading';
         next.src = url;
         pending = next;
@@ -141,32 +176,83 @@
                 return;
             }
             pending = null;
-            device.querySelectorAll('iframe').forEach(function (frame) {
-                if (frame !== next) {
-                    frame.remove();
+            if (onReady) {
+                try {
+                    onReady(next.contentDocument);
+                } catch (e) {
+                    // Cross-origin redirect (e.g. session expired): shown as is
+                }
+            }
+            device.querySelectorAll('iframe').forEach(function (other) {
+                if (other !== next) {
+                    other.remove();
                 }
             });
             next.classList.remove('is-loading');
+            frame = next;
         });
         device.appendChild(next);
         fit();
+    }
+
+    function refresh() {
+        if (!isOpen()) {
+            return;
+        }
+        const current_target = target();
+        if (note) {
+            note.hidden = current_target === 'login';
+        }
+        // A new tab would show an internal page with the *saved* look only
+        if (openLink) {
+            openLink.hidden = current_target !== 'login';
+        }
+
+        if (current_target === 'login') {
+            const url = previewUrl + '?' + buildParams();
+            if (openLink) {
+                openLink.href = url;
+            }
+            frameTarget = 'login';
+            load(url, null);
+            return;
+        }
+
+        // Same internal page already loaded: only swap its stylesheet
+        if (frame && frameTarget === current_target && !pending && frame.contentDocument) {
+            applyLiveCss(frame.contentDocument);
+            return;
+        }
+        frameTarget = current_target;
+        load(targetUrl(), function (doc) {
+            makeInert(doc);
+            applyLiveCss(doc);
+        });
     }
 
     let timer = null;
     function scheduleRefresh() {
         dirty = true;
         clearTimeout(timer);
-        timer = setTimeout(function () {
-            refresh();
-            refreshLiveCss();
-        }, 350);
+        timer = setTimeout(refresh, 350);
     }
 
     function setPreview(open) {
         editor.classList.toggle('has-preview', open);
-        store.set('preview', open ? '1' : '0');
+        editor.querySelectorAll('[data-preview-toggle][aria-expanded]').forEach(function (button) {
+            button.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
         if (open) {
             refresh();
+        } else {
+            // Nothing keeps running (or loaded) while the preview is closed
+            clearTimeout(timer);
+            device.querySelectorAll('iframe').forEach(function (other) {
+                other.remove();
+            });
+            frame = null;
+            frameTarget = null;
+            pending = null;
         }
     }
 
@@ -175,6 +261,13 @@
             setPreview(!isOpen());
         });
     });
+
+    if (targetSelect) {
+        targetSelect.addEventListener('change', function () {
+            frame = null;
+            refresh();
+        });
+    }
 
     editor.querySelectorAll('[data-device]').forEach(function (button) {
         button.addEventListener('click', function () {
@@ -333,6 +426,5 @@
         });
     });
 
-    const remembered = store.get('preview');
-    setPreview(remembered === null ? window.innerWidth >= 1400 : remembered === '1');
+    // The preview always starts closed (see the preview section above)
 })();

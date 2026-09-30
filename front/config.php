@@ -181,7 +181,7 @@ echo '<form class="gs-editor__form" id="gs-editor-form" method="post" action="' 
 
 echo '<header class="gs-editor__intro">';
 echo '<div><h1>Identidade visual</h1><p>Personalize a tela de login, os logos, o favicon e as cores do GLPI.</p></div>';
-echo '<button type="button" class="btn btn-outline-primary" data-preview-toggle><i class="ti ti-eye"></i> <span>Prévia ao vivo</span></button>';
+echo '<button type="button" class="btn btn-outline-primary" data-preview-toggle aria-expanded="false"><i class="ti ti-eye"></i> <span>Prévia</span></button>';
 echo '</header>';
 
 // --- Login ---------------------------------------------------------------
@@ -317,9 +317,23 @@ echo '</div>';
 Html::closeForm();
 
 // --- Preview drawer -----------------------------------------------------
-echo '<aside class="gs-preview" id="gs-preview" aria-label="Prévia ao vivo">';
+// Internal targets are real GLPI pages loaded in the iframe, with the
+// unsaved CSS injected by config.js (links and submits blocked there)
+$preview_targets = [
+    'login'       => ['Tela de login', $plugin_url . '/front/preview.php'],
+    'central'     => ['Página inicial', $CFG_GLPI['root_doc'] . '/front/central.php'],
+    'tickets'     => ['Lista de chamados', $CFG_GLPI['root_doc'] . '/front/ticket.php'],
+    'ticket_form' => ['Formulário de chamado', $CFG_GLPI['root_doc'] . '/front/ticket.form.php'],
+    'computers'   => ['Lista de computadores', $CFG_GLPI['root_doc'] . '/front/computer.php'],
+];
+echo '<aside class="gs-preview" id="gs-preview" aria-label="Prévia">';
 echo '<div class="gs-preview__toolbar">';
-echo '<span class="gs-preview__title"><span class="gs-preview__live"></span> Prévia da tela de login</span>';
+echo '<span class="gs-preview__live" title="Prévia com as alterações ainda não salvas"></span>';
+echo '<select class="form-select form-select-sm gs-preview__target" data-preview-target aria-label="O que visualizar">';
+foreach ($preview_targets as $target => [$target_label, $target_url]) {
+    echo '<option value="' . $target . '" data-url="' . $e($target_url) . '">' . $e($target_label) . '</option>';
+}
+echo '</select>';
 echo '<div class="btn-group" role="group" aria-label="Dispositivo">';
 foreach (['desktop' => ['ti-device-desktop', 'Computador'], 'tablet' => ['ti-device-tablet', 'Tablet'], 'mobile' => ['ti-device-mobile', 'Celular']] as $device => [$icon, $device_label]) {
     echo '<button type="button" class="btn btn-sm btn-outline-secondary' . ($device === 'desktop' ? ' active' : '') . '" data-device="' . $device . '" title="' . $device_label . '" aria-label="' . $device_label . '"><i class="ti ' . $icon . '"></i></button>';
@@ -328,7 +342,8 @@ echo '</div>';
 echo '<a class="btn btn-sm btn-ghost-secondary btn-icon" id="gs-preview-open" href="' . $e($plugin_url . '/front/preview.php') . '" target="_blank" rel="noopener" title="Abrir em tela cheia"><i class="ti ti-external-link"></i></a>';
 echo '<button type="button" class="btn btn-sm btn-ghost-secondary btn-icon" data-preview-toggle title="Fechar prévia" aria-label="Fechar prévia"><i class="ti ti-x"></i></button>';
 echo '</div>';
-echo '<div class="gs-preview__stage" id="gs-preview-stage"><div class="gs-preview__device" id="gs-preview-device"></div></div>';
+echo '<div class="gs-preview__stage" id="gs-preview-stage"><div class="gs-preview__device" id="gs-preview-device"><span class="gs-preview__loading"><i class="ti ti-loader-2"></i> Carregando...</span></div></div>';
+echo '<div class="gs-preview__note" data-preview-note hidden><i class="ti ti-hand-off"></i> Prévia: links e botões de envio ficam desativados. Passe o mouse para ver os efeitos.</div>';
 echo '</aside>';
 
 echo '</div>';
