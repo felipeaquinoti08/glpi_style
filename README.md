@@ -54,7 +54,7 @@ Capturas de tela: adicione as imagens em docs/img/ e descomente.
 | **Logo** | Imagem própria com largura e altura, dentro da caixa ou acima dela, direto sobre o fundo. |
 | **Fundo** | Imagem com ajuste (cobrir a tela, mostrar inteira, tamanho original ou mosaico) e ponto de foco. Gradiente de 3 cores com ângulo ajustável, no lugar da imagem ou por cima dela, com intensidade regulável. |
 | **Efeitos** | Textura de pontos ou grade, formas de luz desfocadas e animação suave, desligada automaticamente para quem prefere menos movimento (`prefers-reduced-motion`). |
-| **Painel de destaque** | Nos layouts de painel lateral: selo, título, subtítulo e lista de destaques sobre o fundo. |
+| **Painel de destaque** | Selo, título, subtítulo e lista de destaques sobre o fundo, posicionados numa grade 3×3 como a caixa de login. Largura estreita, média ou larga, alinhamento automático ou fixo, e fundo de vidro opcional para dar leitura sobre fotos. Aparece nos layouts de painel lateral e, se você quiser, também com a caixa flutuante. |
 | **Textos** | Título, mensagem, texto do botão, separador antes de outros logins (SSO) e linha abaixo do título. |
 | **Botão** | Cor própria com texto em contraste automático, estilo gradiente com brilho ou cor sólida. |
 | **Campos** | Ícones nos campos e botão de mostrar/ocultar senha. |

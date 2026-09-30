@@ -92,15 +92,18 @@ body.gs-login > .gs-hero {
     background: var(--gs-c1);
 }
 
+/* Area left free by the panel; the content is placed in it on a 3x3 grid */
 .gs-hero__inner {
     position: absolute;
     inset: 0;
     display: none;
-    align-items: center;
+    align-items: var(--gs-hero-v);
+    justify-content: var(--gs-hero-h);
     padding: clamp(40px, 6vw, 104px);
 }
 
-body.gs-mode-panel .gs-hero__inner {
+body.gs-mode-panel .gs-hero__inner,
+body.gs-mode-card.gs-hero-in-card .gs-hero__inner {
     display: flex;
 }
 
@@ -197,8 +200,22 @@ body.gs-pos-panel_left .gs-hero__inner {
 
 .gs-hero__content {
     position: relative;
-    max-width: 580px;
+    display: flex;
+    flex-direction: column;
+    align-items: var(--gs-hero-items);
+    max-width: min(var(--gs-hero-w), 100%);
+    text-align: var(--gs-hero-align);
     animation: gs-rise .9s var(--gs-ease) both;
+}
+
+body.gs-hero-glass .gs-hero__content {
+    padding: clamp(24px, 3vw, 40px);
+    border: 1px solid color-mix(in srgb, var(--gs-hero-text) 16%, transparent);
+    border-radius: calc(var(--gs-radius) + 12px);
+    background: var(--gs-hero-backdrop);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
+    box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .45);
 }
 
 .gs-hero__badge {
@@ -777,7 +794,8 @@ body.gs-btn-flat .main-content-card .btn-primary:hover {
 /* ---------- Small screens ---------- */
 
 @media (max-width: 1099.98px) {
-    body.gs-mode-panel .gs-hero__inner {
+    body.gs-mode-panel .gs-hero__inner,
+    body.gs-mode-card.gs-hero-in-card .gs-hero__inner {
         display: none;
     }
 }

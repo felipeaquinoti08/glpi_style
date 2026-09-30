@@ -256,8 +256,8 @@
             syncDefault(target);
         }
 
-        if (target.name === 'login_position') {
-            const label = form.querySelector('[data-position-label]');
+        if (target.closest('.gs-position')) {
+            const label = target.closest('.gs-position').querySelector('[data-position-label]');
             if (label) {
                 label.textContent = target.dataset.label;
             }

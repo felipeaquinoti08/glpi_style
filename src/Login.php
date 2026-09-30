@@ -70,6 +70,8 @@ class Login
             'buttonStyle'     => $config['login_button_style'],
             'titleDivider'    => (bool) $config['login_title_divider'],
             'glass'           => $config['login_box_blur'] > 0,
+            'heroInCard'      => (bool) $config['hero_in_card'],
+            'heroBackdrop'    => $config['hero_backdrop'],
             'animated'        => (bool) $config['login_bg_animated'],
             'formTitle'       => $config['form_title'],
             'formSubtitle'    => $config['form_subtitle'],
