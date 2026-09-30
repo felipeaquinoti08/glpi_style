@@ -5,6 +5,11 @@
  * only happens on the login page (DISPLAY_LOGIN hook). Every value that
  * is configurable comes from the custom properties printed by
  * GlpiPlugin\Glpistyle\Style::loginCss().
+ *
+ * Structure: .gs-hero is a fixed full-screen background (image, gradient,
+ * effects, hero texts). <main> sits on top of it either as a full-height
+ * side panel (.gs-mode-panel) or as a full-screen area in which the login
+ * box is placed on a 3x3 grid (.gs-mode-card).
  */
 
 .gs-hero {
@@ -15,32 +20,37 @@
 
 body.gs-login {
     --gs-ease: cubic-bezier(.2, .7, .2, 1);
-    --gs-accent-soft: color-mix(in srgb, var(--gs-accent) 16%, transparent);
+    --gs-accent-soft: color-mix(in srgb, var(--gs-accent) 18%, transparent);
     --gs-accent-strong: color-mix(in srgb, var(--gs-accent) 78%, #000);
     --gs-accent-light: color-mix(in srgb, var(--gs-accent) 80%, #fff);
+    --gs-box-surface: color-mix(in srgb, var(--gs-box-bg) var(--gs-box-alpha), transparent);
 }
 
 body.gs-login.gs-form-light {
-    --gs-form-bg: #ffffff;
     --gs-surface: #ffffff;
+    --gs-box-bg: #ffffff;
     --gs-text: #0f172a;
+    --gs-title-color: #0f172a;
+    --gs-label-color: #334155;
     --gs-muted: #64748b;
     --gs-border: #e2e8f0;
     --gs-input-bg: #f8fafc;
     --gs-input-bg-focus: #ffffff;
-    --gs-shadow: rgba(15, 23, 42, .18);
+    --gs-shadow: rgba(15, 23, 42, .22);
     color-scheme: light;
 }
 
 body.gs-login.gs-form-dark {
-    --gs-form-bg: #0b1020;
-    --gs-surface: #111827;
+    --gs-surface: #0f1422;
+    --gs-box-bg: #0b0f1a;
     --gs-text: #f1f5f9;
+    --gs-title-color: #f8fafc;
+    --gs-label-color: #cbd5e1;
     --gs-muted: #94a3b8;
-    --gs-border: rgba(148, 163, 184, .2);
-    --gs-input-bg: rgba(255, 255, 255, .04);
-    --gs-input-bg-focus: rgba(255, 255, 255, .07);
-    --gs-shadow: rgba(0, 0, 0, .5);
+    --gs-border: rgba(148, 163, 184, .22);
+    --gs-input-bg: rgba(255, 255, 255, .05);
+    --gs-input-bg-focus: rgba(255, 255, 255, .08);
+    --gs-shadow: rgba(0, 0, 0, .55);
     color-scheme: dark;
 }
 
@@ -48,24 +58,19 @@ body.gs-login.gs-form-dark {
 
 body.gs-login {
     --tblr-body-color: var(--gs-text);
-    --tblr-body-bg: var(--gs-form-bg);
+    --tblr-body-bg: var(--gs-box-bg);
     --tblr-bg-surface: var(--gs-surface);
     --tblr-border-color: var(--gs-border);
     --tblr-secondary: var(--gs-muted);
     --tblr-link-color: var(--gs-accent);
 
-    display: flex;
     min-height: 100vh;
     margin: 0;
-    background: var(--gs-form-bg) !important;
+    background: var(--gs-c1) !important;
     color: var(--gs-text);
     font-family: var(--gs-font) !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
-
-body.gs-login.gs-layout-split_right {
-    flex-direction: row-reverse;
 }
 
 body.gs-login .main-content-card .form-control,
@@ -74,19 +79,41 @@ body.gs-login .main-content-card h2 {
     font-family: inherit;
 }
 
-/* ---------- Hero panel ---------- */
+/* ---------- Background / hero ---------- */
 
 body.gs-login > .gs-hero {
-    position: relative;
-    display: flex;
-    flex: 1 1 58%;
-    align-items: center;
-    min-height: 100vh;
-    padding: clamp(40px, 6vw, 104px);
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
     overflow: hidden;
     isolation: isolate;
     color: var(--gs-hero-text);
     background: var(--gs-c1);
+}
+
+.gs-hero__inner {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    padding: clamp(40px, 6vw, 104px);
+}
+
+body.gs-mode-panel .gs-hero__inner {
+    display: flex;
+}
+
+body.gs-pos-panel_right .gs-hero__inner {
+    right: min(var(--gs-panel-w), 100%);
+}
+
+body.gs-pos-panel_left .gs-hero__inner {
+    left: min(var(--gs-panel-w), 100%);
+}
+
+.gs-hero__content:empty {
+    display: none;
 }
 
 .gs-hero__image,
@@ -100,7 +127,7 @@ body.gs-login > .gs-hero {
 
 .gs-hero__image {
     z-index: -4;
-    background: var(--gs-image) center / cover no-repeat;
+    background: var(--gs-image) var(--gs-image-pos) / var(--gs-image-size) var(--gs-image-repeat);
 }
 
 .gs-hero__gradient {
@@ -254,53 +281,134 @@ body.gs-login > .gs-hero {
     font-size: 15px;
 }
 
-/* ---------- Form side ---------- */
+
+/* ---------- Main area ---------- */
 
 body.gs-login > main.page-anonymous {
     position: relative;
     z-index: 1;
     display: flex;
-    flex: 0 0 min(580px, 44%);
+    width: 100%;
     min-height: 100vh;
-    background: var(--gs-form-bg);
-    box-shadow: 0 0 80px var(--gs-shadow);
+    background: transparent;
 }
 
 body.gs-login > main.page-anonymous > .flex-fill {
     width: 100%;
     margin: 0 !important;
-    padding: 48px clamp(24px, 5vw, 72px) !important;
 }
 
 body.gs-login .container-tight {
-    width: 100%;
-    max-width: 420px !important;
+    width: min(var(--gs-box-w), 100%);
+    max-width: none !important;
     margin: 0 auto;
     padding: 0 !important;
     animation: gs-rise .75s var(--gs-ease) .08s both;
 }
 
-body.gs-login .container-tight > .text-center:first-child {
-    text-align: left !important;
+/* Side panel */
+body.gs-mode-panel > main.page-anonymous {
+    width: min(var(--gs-panel-w), 100%);
+    background: var(--gs-box-surface);
+    -webkit-backdrop-filter: blur(var(--gs-box-blur)) saturate(140%);
+    backdrop-filter: blur(var(--gs-box-blur)) saturate(140%);
+    box-shadow: 0 0 90px var(--gs-shadow);
 }
+
+body.gs-pos-panel_right > main.page-anonymous {
+    margin-left: auto;
+}
+
+body.gs-mode-panel > main.page-anonymous > .flex-fill {
+    padding: 48px clamp(24px, 5vw, 64px) !important;
+}
+
+/* Floating box placed on the 3x3 grid */
+body.gs-mode-card > main.page-anonymous > .flex-fill {
+    display: flex !important;
+    flex-direction: column;
+    align-items: var(--gs-h);
+    justify-content: var(--gs-v) !important;
+    min-height: 100vh;
+    padding: clamp(24px, 6vh, 72px) clamp(16px, 6vw, 112px) !important;
+}
+
+body.gs-mode-card .container-tight {
+    margin: 0;
+}
+
+body.gs-mode-card.gs-logo-inside .container-tight,
+body.gs-mode-card.gs-logo-above .main-content-card {
+    padding: 40px 36px 32px !important;
+    border: 1px solid color-mix(in srgb, var(--gs-border) 80%, transparent) !important;
+    border-radius: calc(var(--gs-radius) + 10px) !important;
+    background: var(--gs-box-surface) !important;
+    -webkit-backdrop-filter: blur(var(--gs-box-blur)) saturate(140%);
+    backdrop-filter: blur(var(--gs-box-blur)) saturate(140%);
+    box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .08) !important;
+}
+
+body.gs-mode-card.gs-glass.gs-logo-inside .container-tight,
+body.gs-mode-card.gs-glass.gs-logo-above .main-content-card {
+    border-color: rgba(255, 255, 255, .22) !important;
+}
+
+/* Logo above the box: it and the footer sit on the background itself */
+body.gs-mode-card.gs-logo-above .container-tight > .text-muted,
+body.gs-mode-card.gs-logo-above .gs-footer {
+    color: var(--gs-hero-text) !important;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, .45);
+}
+
+/* ---------- Logo ---------- */
 
 body.gs-login.gs-login .page-anonymous .glpi-logo {
     display: inline-block;
-    width: auto;
-    max-width: 240px;
+    width: var(--gs-logo-w);
+    max-width: 100%;
     height: var(--gs-logo-h);
-    margin-bottom: 36px !important;
+    margin-bottom: 28px !important;
     object-fit: contain;
-    object-position: left center;
 }
 
 body.gs-login.gs-form-light .page-anonymous .glpi-logo {
     --logo: var(--glpi-logo-dark-login) !important;
 }
 
-body.gs-login.gs-form-dark .page-anonymous .glpi-logo {
+body.gs-login.gs-form-dark .page-anonymous .glpi-logo,
+body.gs-login.gs-logo-above.gs-mode-card .page-anonymous .glpi-logo {
     --logo: var(--glpi-logo-light-login) !important;
 }
+
+/* ---------- Alignment ---------- */
+
+body.gs-align-center .container-tight > .text-center:first-child,
+body.gs-align-center .main-content-card .card-header h2,
+body.gs-align-center .gs-form-subtitle,
+body.gs-align-center .container-tight > .text-muted,
+body.gs-align-center .gs-footer,
+body.gs-align-center .main-content-card .rich_text_container {
+    text-align: center !important;
+}
+
+body.gs-align-center .page-anonymous .glpi-logo {
+    object-position: center;
+}
+
+body.gs-align-left .container-tight > .text-center:first-child,
+body.gs-align-left .main-content-card .card-header h2,
+body.gs-align-left .gs-form-subtitle,
+body.gs-align-left .container-tight > .text-muted,
+body.gs-align-left .gs-footer,
+body.gs-align-left .main-content-card .rich_text_container {
+    text-align: left !important;
+}
+
+body.gs-align-left .page-anonymous .glpi-logo {
+    object-position: left center;
+}
+
+/* ---------- Card internals ---------- */
 
 body.gs-login .main-content-card {
     border: 0 !important;
@@ -327,26 +435,30 @@ body.gs-login .main-content-card form > .row > * {
 
 body.gs-login .main-content-card form > .row > .col-md-5 > .card-header {
     display: block;
-    margin-bottom: 32px !important;
+    margin-bottom: 28px !important;
     padding: 0;
     border: 0;
     background: none;
 }
 
+body.gs-divider .main-content-card form > .row > .col-md-5 > .card-header {
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--gs-border) !important;
+}
+
 body.gs-login .main-content-card .card-header h2 {
     margin: 0 0 8px !important;
-    color: var(--gs-text);
-    font-size: 1.9rem;
+    color: var(--gs-title-color);
+    font-size: 1.75rem;
     font-weight: 750;
     line-height: 1.2;
     letter-spacing: -.025em;
-    text-align: left;
 }
 
 body.gs-login .gs-form-subtitle {
     margin: 0;
-    color: var(--gs-muted);
-    font-size: 1rem;
+    color: color-mix(in srgb, var(--gs-label-color) 80%, transparent);
+    font-size: .98rem;
     line-height: 1.5;
 }
 
@@ -362,7 +474,7 @@ body.gs-login .main-content-card .rich_text_container {
 
 body.gs-login .main-content-card .form-label {
     margin-bottom: 8px;
-    color: var(--gs-text) !important;
+    color: var(--gs-label-color) !important;
     font-size: .86rem;
     font-weight: 600;
 }
@@ -460,7 +572,7 @@ body.gs-login .gs-toggle-password:focus-visible {
 }
 
 body.gs-login .main-content-card .form-check {
-    color: var(--gs-muted);
+    color: var(--gs-label-color);
     font-size: .92rem;
 }
 
@@ -497,7 +609,7 @@ body.gs-login .main-content-card .btn-primary {
     border-radius: var(--gs-radius) !important;
     background: linear-gradient(135deg, var(--gs-accent-light) 0%, var(--gs-accent) 50%, var(--gs-accent-strong) 100%) !important;
     background-size: 160% 160% !important;
-    color: #ffffff !important;
+    color: var(--gs-accent-fg) !important;
     font-size: 1.02rem;
     font-weight: 650;
     letter-spacing: .01em;
@@ -624,11 +736,10 @@ body.gs-login .main-content-card .btn-outline-secondary {
 }
 
 body.gs-login .container-tight > .text-muted {
-    margin-top: 40px !important;
+    margin-top: 28px !important;
     color: var(--gs-muted) !important;
     font-size: .76rem;
-    text-align: left !important;
-    opacity: .8;
+    opacity: .85;
 }
 
 body.gs-login .container-tight > .text-muted a {
@@ -636,7 +747,7 @@ body.gs-login .container-tight > .text-muted a {
 }
 
 body.gs-login .gs-footer {
-    margin-top: 12px;
+    margin-top: 24px;
     color: var(--gs-muted);
     font-size: .84rem;
 }
@@ -645,106 +756,45 @@ body.gs-login .gs-hidden {
     display: none !important;
 }
 
-/* ---------- Centered (glass card) layout, also used on small screens ---------- */
 
-body.gs-login.gs-layout-centered {
-    background: var(--gs-c1) !important;
+body.gs-btn-flat .main-content-card .btn-primary {
+    background: var(--gs-accent) !important;
 }
 
-body.gs-login.gs-layout-centered > .gs-hero {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    padding: 0;
-}
-
-body.gs-login.gs-layout-centered .gs-hero__content {
+body.gs-btn-flat .main-content-card .btn-primary::after {
     display: none;
 }
 
-body.gs-login.gs-layout-centered > main.page-anonymous {
-    flex: 1 1 auto;
-    background: transparent;
-    box-shadow: none;
+body.gs-btn-flat .main-content-card .btn-primary:hover {
+    background: color-mix(in srgb, var(--gs-accent) 88%, #000) !important;
 }
 
-body.gs-login.gs-layout-centered .container-tight {
-    max-width: 460px !important;
-    padding: 44px 40px 36px !important;
-    border: 1px solid color-mix(in srgb, #ffffff 16%, transparent);
-    border-radius: calc(var(--gs-radius) + 12px);
-    background: color-mix(in srgb, var(--gs-surface) 80%, transparent);
-    -webkit-backdrop-filter: blur(24px) saturate(150%);
-    backdrop-filter: blur(24px) saturate(150%);
-    box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .12);
-}
+/* ---------- Small screens ---------- */
 
-body.gs-login.gs-layout-centered .container-tight > .text-center:first-child,
-body.gs-login.gs-layout-centered .main-content-card .card-header h2,
-body.gs-login.gs-layout-centered .gs-form-subtitle,
-body.gs-login.gs-layout-centered .container-tight > .text-muted,
-body.gs-login.gs-layout-centered .gs-footer {
-    text-align: center !important;
-}
-
-body.gs-login.gs-layout-centered .page-anonymous .glpi-logo {
-    margin-bottom: 28px !important;
-    object-position: center;
-}
-
-@media (max-width: 1199.98px) {
-    body.gs-login > .gs-hero {
-        flex-basis: 50%;
-    }
-
-    body.gs-login > main.page-anonymous {
-        flex-basis: 50%;
-    }
-}
-
-@media (max-width: 991.98px) {
-    body.gs-login > .gs-hero {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        padding: 0;
-    }
-
-    body.gs-login .gs-hero__content {
+@media (max-width: 1099.98px) {
+    body.gs-mode-panel .gs-hero__inner {
         display: none;
     }
+}
 
-    body.gs-login > main.page-anonymous {
-        flex: 1 1 auto;
-        background: transparent;
-        box-shadow: none;
+@media (max-width: 767.98px) {
+    body.gs-mode-panel > main.page-anonymous {
+        width: 100%;
     }
 
-    body.gs-login > main.page-anonymous > .flex-fill {
-        padding: 32px 16px !important;
+    body.gs-mode-panel > main.page-anonymous > .flex-fill {
+        padding: 32px 20px !important;
     }
 
-    body.gs-login .container-tight {
-        max-width: 460px !important;
-        padding: 36px 24px 28px !important;
-        border: 1px solid color-mix(in srgb, #ffffff 16%, transparent);
-        border-radius: calc(var(--gs-radius) + 10px);
-        background: color-mix(in srgb, var(--gs-surface) 86%, transparent);
-        -webkit-backdrop-filter: blur(24px) saturate(150%);
-        backdrop-filter: blur(24px) saturate(150%);
-        box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .55);
+    body.gs-mode-card > main.page-anonymous > .flex-fill {
+        align-items: center;
+        justify-content: center !important;
+        padding: 24px 16px !important;
     }
 
-    body.gs-login .container-tight > .text-center:first-child,
-    body.gs-login .main-content-card .card-header h2,
-    body.gs-login .gs-form-subtitle,
-    body.gs-login .container-tight > .text-muted,
-    body.gs-login .gs-footer {
-        text-align: center !important;
-    }
-
-    body.gs-login .page-anonymous .glpi-logo {
-        object-position: center;
+    body.gs-mode-card.gs-logo-inside .container-tight,
+    body.gs-mode-card.gs-logo-above .main-content-card {
+        padding: 32px 22px 26px !important;
     }
 }
 

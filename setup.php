@@ -26,6 +26,16 @@ function plugin_version_glpistyle(): array
     ];
 }
 
+/**
+ * URL of a file served by front/resource.php, versioned by its mtime so
+ * browsers pick up changes without bumping the plugin version (which would
+ * make GLPI disable the plugin until it's updated).
+ */
+function plugin_glpistyle_resource(string $key, string $file): string
+{
+    return 'front/resource.php?f=' . $key . '&m=' . (@filemtime(__DIR__ . '/public/' . $file) ?: 0);
+}
+
 function plugin_init_glpistyle(): void
 {
     global $PLUGIN_HOOKS;
@@ -40,6 +50,7 @@ function plugin_init_glpistyle(): void
     // page itself, before anyone is authenticated.
     Firewall::addPluginStrategyForLegacyScripts('glpistyle', '#^/front/asset\.php#', Firewall::STRATEGY_NO_CHECK);
     Firewall::addPluginStrategyForLegacyScripts('glpistyle', '#^/front/style\.css\.php#', Firewall::STRATEGY_NO_CHECK);
+    Firewall::addPluginStrategyForLegacyScripts('glpistyle', '#^/front/resource\.php#', Firewall::STRATEGY_NO_CHECK);
 
     if (!Plugin::isPluginActive('glpistyle')) {
         return;
@@ -62,13 +73,13 @@ function plugin_init_glpistyle(): void
         ]];
         $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG]['glpistyle'] = $favicon_tags;
         $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG_ANONYMOUS_PAGE]['glpistyle'] = $favicon_tags;
-        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['glpistyle'][] = 'js/favicon.js';
-        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_ANONYMOUS_PAGE]['glpistyle'][] = 'js/favicon.js';
+        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['glpistyle'][] = plugin_glpistyle_resource('favicon.js', 'js/favicon.js');
+        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_ANONYMOUS_PAGE]['glpistyle'][] = plugin_glpistyle_resource('favicon.js', 'js/favicon.js');
     }
 
     if ((int) $config['login_enabled'] === 1) {
-        $PLUGIN_HOOKS[Hooks::ADD_CSS_ANONYMOUS_PAGE]['glpistyle'][] = 'css/login.css';
-        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_ANONYMOUS_PAGE]['glpistyle'][] = 'js/login.js';
+        $PLUGIN_HOOKS[Hooks::ADD_CSS_ANONYMOUS_PAGE]['glpistyle'][] = plugin_glpistyle_resource('login.css', 'css/login.css');
+        $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_ANONYMOUS_PAGE]['glpistyle'][] = plugin_glpistyle_resource('login.js', 'js/login.js');
 
         // Only fired by templates/pages/login.html.twig - this is what
         // scopes the redesign to the login page and not to the other

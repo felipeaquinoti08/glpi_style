@@ -9,28 +9,57 @@ namespace GlpiPlugin\Glpistyle;
  */
 class Style
 {
+    private const BOX_WIDTHS = ['sm' => 380, 'md' => 440, 'lg' => 520];
+    private const PANEL_WIDTHS = ['sm' => 440, 'md' => 540, 'lg' => 660];
+
+    /** [horizontal, vertical] alignment of the box for each grid position */
+    private const GRID = [
+        'tl' => ['flex-start', 'flex-start'], 'tc' => ['center', 'flex-start'], 'tr' => ['flex-end', 'flex-start'],
+        'ml' => ['flex-start', 'center'],     'mc' => ['center', 'center'],     'mr' => ['flex-end', 'center'],
+        'bl' => ['flex-start', 'flex-end'],   'bc' => ['center', 'flex-end'],   'br' => ['flex-end', 'flex-end'],
+    ];
+
+    private const BG_FITS = [
+        'cover'   => ['cover', 'no-repeat'],
+        'contain' => ['contain', 'no-repeat'],
+        'center'  => ['auto', 'no-repeat'],
+        'repeat'  => ['auto', 'repeat'],
+    ];
+
     /**
      * Custom properties consumed by public/css/login.css.
      */
     public static function loginCss(array $config): string
     {
         $font = Config::FONTS[$config['login_font']] ?? Config::FONTS['inter'];
-        $bg_url = Config::getAssetUrl('login_bg', $config);
-        $has_bg = $bg_url !== '' && Config::getAssetPath('login_bg', $config) !== null;
+        $has_bg = Config::getAssetPath('login_bg', $config) !== null;
+        [$h, $v] = self::GRID[$config['login_position']] ?? ['center', 'center'];
+        [$size, $repeat] = self::BG_FITS[$config['login_bg_fit']];
 
         $vars = [
-            '--gs-font'          => $font[2],
-            '--gs-accent'        => $config['login_accent'],
-            '--gs-radius'        => $config['login_radius'] . 'px',
-            '--gs-logo-h'        => $config['login_logo_height'] . 'px',
-            '--gs-c1'            => $config['login_bg_color1'],
-            '--gs-c2'            => $config['login_bg_color2'],
-            '--gs-c3'            => $config['login_bg_color3'],
-            '--gs-angle'         => $config['login_bg_angle'] . 'deg',
-            '--gs-hero-text'     => $config['hero_text_color'],
+            '--gs-font'        => $font[2],
+            '--gs-accent'      => $config['login_accent'],
+            '--gs-accent-fg'   => self::contrast($config['login_accent']),
+            '--gs-radius'      => $config['login_radius'] . 'px',
+            '--gs-logo-w'      => $config['login_logo_width'] . 'px',
+            '--gs-logo-h'      => $config['login_logo_height'] . 'px',
+            '--gs-box-w'       => self::BOX_WIDTHS[$config['login_box_width']] . 'px',
+            '--gs-panel-w'     => self::PANEL_WIDTHS[$config['login_box_width']] . 'px',
+            '--gs-box-alpha'   => $config['login_box_opacity'] . '%',
+            '--gs-box-blur'    => $config['login_box_blur'] . 'px',
+            '--gs-h'           => $h,
+            '--gs-v'           => $v,
+            '--gs-c1'          => $config['login_bg_color1'],
+            '--gs-c2'          => $config['login_bg_color2'],
+            '--gs-c3'          => $config['login_bg_color3'],
+            '--gs-angle'       => $config['login_bg_angle'] . 'deg',
+            '--gs-hero-text'   => $config['hero_text_color'],
             // Without a photo the gradient is the background itself
-            '--gs-overlay'       => $has_bg ? (string) ($config['login_overlay_opacity'] / 100) : '1',
-            '--gs-image'         => $has_bg ? 'url("' . $bg_url . '")' : 'none',
+            '--gs-overlay'     => $has_bg ? (string) ($config['login_overlay_opacity'] / 100) : '1',
+            '--gs-image'       => $has_bg ? 'url("' . Config::getAssetUrl('login_bg', $config) . '")' : 'none',
+            '--gs-image-size'  => $size,
+            '--gs-image-repeat' => $repeat,
+            '--gs-image-pos'   => $config['login_bg_position'],
         ];
 
         $css = '';
@@ -42,6 +71,22 @@ class Style
             $css .= $name . ':' . $value . ';';
         }
         $css .= '}';
+
+        // "Usar padrão do tema" colors are simply not overridden; the
+        // tripled class outranks the light/dark theme tokens of login.css
+        $overrides = [
+            '--gs-box-bg'      => $config['login_box_bg'],
+            '--gs-title-color' => $config['login_title_color'],
+            '--gs-label-color' => $config['login_text_color'],
+        ];
+        $overrides = array_filter($overrides, static fn($value) => $value !== '');
+        if ($overrides !== []) {
+            $css .= 'body.gs-login.gs-login.gs-login{';
+            foreach ($overrides as $name => $value) {
+                $css .= $name . ':' . $value . ';';
+            }
+            $css .= '}';
+        }
 
         $logo = self::loginLogoUrl($config);
         if ($logo !== '') {
@@ -63,17 +108,19 @@ class Style
     }
 
     /**
-     * Served by front/style.css.php on every page: menu logos (logged
-     * pages) and the logo of the other anonymous pages (lost password...).
+     * Served by front/style.css.php on every page: inner pages colors and
+     * menu logos, and the logo of the other anonymous pages (lost
+     * password...).
      */
     public static function globalCss(array $config): string
     {
-        $css = '';
+        $css = self::colorsCss($config);
 
         if (Config::getAssetPath('logo_full', $config) !== null) {
             $url = Config::getAssetUrl('logo_full', $config);
             $css .= '.page .glpi-logo{background-image:url("' . $url . '") !important;'
-                . 'background-size:contain !important;background-position:center !important;background-repeat:no-repeat !important;}';
+                . 'background-size:contain !important;background-position:center !important;background-repeat:no-repeat !important;'
+                . 'width:' . $config['logo_full_width'] . 'px !important;height:' . $config['logo_full_height'] . 'px !important;}';
         }
 
         // Collapsed sidebar: dedicated square logo, or the full one shrunk
@@ -82,15 +129,86 @@ class Style
         if ($reduced_slot !== null) {
             $url = Config::getAssetUrl($reduced_slot, $config);
             $css .= 'body.navbar-collapsed .navbar-brand .glpi-logo{background-image:url("' . $url . '") !important;'
-                . 'background-size:contain !important;background-position:center !important;background-repeat:no-repeat !important;}';
+                . 'background-size:contain !important;background-position:center !important;background-repeat:no-repeat !important;'
+                . 'width:40px !important;height:40px !important;}';
         }
 
         $login_logo = self::loginLogoUrl($config);
         if ($login_logo !== '') {
             $css .= '.page-anonymous .glpi-logo{--logo:url("' . $login_logo . '") !important;'
-                . 'width:auto !important;max-width:260px;height:' . $config['login_logo_height'] . 'px !important;object-fit:contain;}';
+                . 'width:auto !important;max-width:' . $config['login_logo_width'] . 'px;'
+                . 'height:' . $config['login_logo_height'] . 'px !important;object-fit:contain;}';
         }
 
         return $css;
+    }
+
+    /**
+     * Inner pages colors, layered over whatever GLPI palette the user
+     * picked. Only the colors not left on "Usar padrão do tema" are set.
+     */
+    public static function colorsCss(array $config): string
+    {
+        $root = [];
+        if ($config['color_primary'] !== '') {
+            $root['--tblr-primary-rgb'] = self::rgb($config['color_primary']);
+            $root['--tblr-primary'] = $config['color_primary'];
+            $root['--tblr-primary-fg'] = self::contrast($config['color_primary']);
+        }
+        if ($config['color_secondary'] !== '') {
+            $root['--tblr-secondary-rgb'] = self::rgb($config['color_secondary']);
+            $root['--tblr-secondary'] = $config['color_secondary'];
+        }
+        if ($config['color_links'] !== '') {
+            $root['--tblr-link-color-rgb'] = self::rgb($config['color_links']);
+            $root['--tblr-link-color'] = $config['color_links'];
+            $root['--tblr-link-hover-color'] = $config['color_links'];
+        }
+        if ($config['color_menu_bg'] !== '') {
+            $root['--glpi-mainmenu-bg'] = $config['color_menu_bg'];
+        }
+        if ($config['color_menu_fg'] !== '') {
+            $root['--glpi-mainmenu-fg'] = $config['color_menu_fg'];
+        }
+
+        $css = '';
+        if ($root !== []) {
+            // Same specificity as the core palettes plus one, so these win
+            // over :root[data-glpi-theme="..."] whatever the load order
+            $css .= ':root:root[data-glpi-theme]{';
+            foreach ($root as $name => $value) {
+                $css .= $name . ':' . $value . ';';
+            }
+            $css .= '}';
+        }
+
+        $header = 'header.navbar[data-testid="main-header"]';
+        if ($config['color_header_bg'] !== '') {
+            $css .= $header . '{background-color:' . $config['color_header_bg'] . ' !important;}';
+        }
+        if ($config['color_header_fg'] !== '') {
+            $fg = $config['color_header_fg'];
+            $css .= $header . '{--tblr-body-color:' . $fg . ';--tblr-navbar-color:' . $fg . ';color:' . $fg . ' !important;}'
+                . $header . ' .nav-link,' . $header . ' .btn-icon,' . $header . ' .breadcrumb a,' . $header . ' .breadcrumb-item,'
+                . $header . ' .breadcrumb-item::before,' . $header . ' .ti,' . $header . ' .user-menu *{color:' . $fg . ' !important;}';
+        }
+
+        return $css;
+    }
+
+    private static function rgb(string $hex): string
+    {
+        return implode(', ', array_map('hexdec', str_split(substr($hex, 1), 2)));
+    }
+
+    /** Readable text color (#fff or near black) over the $hex background */
+    public static function contrast(string $hex): string
+    {
+        [$r, $g, $b] = array_map(static function ($c) {
+            $c = hexdec($c) / 255;
+            return $c <= 0.03928 ? $c / 12.92 : (($c + 0.055) / 1.055) ** 2.4;
+        }, str_split(substr($hex, 1), 2));
+        $luminance = 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
+        return $luminance > 0.4 ? '#0f172a' : '#ffffff';
     }
 }

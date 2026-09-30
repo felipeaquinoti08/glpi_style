@@ -18,10 +18,25 @@ class Config
 {
     public const CONTEXT = 'plugin:glpistyle';
 
-    public const LAYOUTS = [
-        'split_left'  => 'Dividido - destaque à esquerda',
-        'split_right' => 'Dividido - destaque à direita',
-        'centered'    => 'Centralizado (vidro sobre o fundo)',
+    /** Where the login box sits: 3x3 grid over the background, or a full-height side panel */
+    public const POSITIONS = [
+        'tl' => 'Canto superior esquerdo',
+        'tc' => 'Topo, centralizada',
+        'tr' => 'Canto superior direito',
+        'ml' => 'Meio, à esquerda',
+        'mc' => 'Centro da tela',
+        'mr' => 'Meio, à direita',
+        'bl' => 'Canto inferior esquerdo',
+        'bc' => 'Base, centralizada',
+        'br' => 'Canto inferior direito',
+        'panel_left'  => 'Painel lateral esquerdo (altura total)',
+        'panel_right' => 'Painel lateral direito (altura total)',
+    ];
+
+    public const BOX_WIDTHS = [
+        'sm' => 'Pequena',
+        'md' => 'Média',
+        'lg' => 'Grande',
     ];
 
     /** key => [label, Google Fonts family (null = no download), CSS font stack] */
@@ -40,17 +55,55 @@ class Config
     ];
 
     public const PATTERNS = [
-        'none' => 'Nenhum',
+        'none' => 'Nenhuma',
         'dots' => 'Pontos',
         'grid' => 'Grade',
     ];
 
+    /** key => [label, help] */
+    public const BG_FITS = [
+        'cover'   => ['Cobrir a tela', 'Preenche a tela inteira, cortando o que passar das bordas.'],
+        'contain' => ['Mostrar inteira', 'A imagem aparece completa; sobra espaço com a cor 1 do fundo.'],
+        'center'  => ['Tamanho original', 'Sem redimensionar, no ponto escolhido em "Ponto de foco".'],
+        'repeat'  => ['Repetir (mosaico)', 'Repete a imagem lado a lado. Bom para texturas.'],
+    ];
+
+    public const BG_POSITIONS = [
+        'center' => 'Centro',
+        'top'    => 'Topo',
+        'bottom' => 'Base',
+        'left'   => 'Esquerda',
+        'right'  => 'Direita',
+    ];
+
+    public const LOGO_POSITIONS = [
+        'inside' => 'Dentro da caixa',
+        'above'  => 'Acima da caixa, sobre o fundo',
+    ];
+
+    public const TEXT_ALIGNS = [
+        'center' => 'Centralizado',
+        'left'   => 'À esquerda',
+    ];
+
+    public const BUTTON_STYLES = [
+        'gradient' => 'Gradiente com brilho',
+        'flat'     => 'Cor sólida',
+    ];
+
+    public const FOOTER_MODES = [
+        'glpi'   => 'Copyright do GLPI',
+        'custom' => 'Texto personalizado',
+        'both'   => 'Texto personalizado + copyright do GLPI',
+        'hidden' => 'Ocultar rodapé',
+    ];
+
     /** Uploadable images: slot => [label, allowed extensions] */
     public const ASSETS = [
-        'login_logo'   => ['Logo da tela de login', ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif']],
+        'login_logo'   => ['Logo do login', ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif']],
         'login_bg'     => ['Imagem de fundo do login', ['png', 'jpg', 'jpeg', 'webp']],
-        'logo_full'    => ['Logo do menu (expandido)', ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif']],
-        'logo_reduced' => ['Logo do menu (recolhido)', ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif']],
+        'logo_full'    => ['Logo do menu', ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif']],
+        'logo_reduced' => ['Logo do menu recolhido', ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif']],
         'favicon'      => ['Favicon', ['ico', 'png', 'svg']],
     ];
 
@@ -66,26 +119,48 @@ class Config
 
     public const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
 
+    /** Suffix of the "Usar padrão do tema" checkbox of an optional color */
+    public const DEFAULT_SUFFIX = '__default';
+
     /**
      * field => [type, default, extra]
-     *  - bool:  extra unused
-     *  - color: extra unused (#rrggbb)
-     *  - int:   extra = [min, max]
-     *  - enum:  extra = allowed keys
-     *  - text:  extra = max length
-     *  - lines: extra = max number of lines (each max 120 chars)
+     *  - bool:      extra unused
+     *  - color:     #rrggbb
+     *  - color_opt: #rrggbb, or '' meaning "use the theme default"
+     *  - int:       extra = [min, max]
+     *  - enum:      extra = allowed keys
+     *  - text:      extra = max length
+     *  - lines:     extra = max number of lines (each max 120 chars)
      */
     private static function schema(): array
     {
         return [
+            // Login - general
             'login_enabled'         => ['bool', 1],
-            'login_layout'          => ['enum', 'split_left', array_keys(self::LAYOUTS)],
-            'login_font'            => ['enum', 'inter', array_keys(self::FONTS)],
             'login_form_theme'      => ['enum', 'light', array_keys(self::FORM_THEMES)],
-            'login_accent'          => ['color', '#6d5dfc'],
-            'login_radius'          => ['int', 14, [0, 28]],
-            'login_logo_height'     => ['int', 64, [24, 160]],
+            'login_font'            => ['enum', 'inter', array_keys(self::FONTS)],
+            'login_radius'          => ['int', 12, [0, 28]],
 
+            // Login - box
+            'login_position'        => ['enum', 'panel_right', array_keys(self::POSITIONS)],
+            'login_box_width'       => ['enum', 'md', array_keys(self::BOX_WIDTHS)],
+            'login_box_bg'          => ['color_opt', ''],
+            'login_box_opacity'     => ['int', 100, [0, 100]],
+            'login_box_blur'        => ['int', 0, [0, 40]],
+            'login_title_color'     => ['color_opt', ''],
+            'login_text_color'      => ['color_opt', ''],
+            'login_accent'          => ['color', '#6d5dfc'],
+            'login_button_style'    => ['enum', 'gradient', array_keys(self::BUTTON_STYLES)],
+            'login_text_align'      => ['enum', 'center', array_keys(self::TEXT_ALIGNS)],
+            'login_title_divider'   => ['bool', 0],
+            'login_logo_position'   => ['enum', 'inside', array_keys(self::LOGO_POSITIONS)],
+            'login_logo_width'      => ['int', 220, [40, 480]],
+            'login_logo_height'     => ['int', 72, [20, 240]],
+
+            // Login - background
+            'login_bg_fit'          => ['enum', 'cover', array_keys(self::BG_FITS)],
+            'login_bg_position'     => ['enum', 'center', array_keys(self::BG_POSITIONS)],
+            'login_overlay_opacity' => ['int', 0, [0, 100]],
             'login_bg_color1'       => ['color', '#0b1026'],
             'login_bg_color2'       => ['color', '#2b1b6b'],
             'login_bg_color3'       => ['color', '#6d5dfc'],
@@ -93,21 +168,33 @@ class Config
             'login_bg_animated'     => ['bool', 1],
             'login_shapes'          => ['bool', 1],
             'login_pattern'         => ['enum', 'dots', array_keys(self::PATTERNS)],
-            'login_overlay_opacity' => ['int', 70, [0, 100]],
 
+            // Login - hero texts (side panel layouts)
             'hero_text_color'       => ['color', '#ffffff'],
             'hero_badge'            => ['text', 'Central de Serviços de TI', 60],
             'hero_title'            => ['text', 'Tudo o que você precisa, em um só lugar.', 120],
             'hero_subtitle'         => ['text', 'Abra chamados, acompanhe solicitações e encontre respostas rápidas na nossa base de conhecimento.', 300],
             'hero_features'         => ['lines', "Atendimento ágil e rastreável\nBase de conhecimento sempre à mão\nAcompanhamento em tempo real", 6],
 
+            // Login - box texts
             'form_title'            => ['text', 'Bem-vindo de volta', 80],
             'form_subtitle'         => ['text', 'Entre com suas credenciais para continuar.', 160],
             'button_text'           => ['text', 'Entrar', 40],
             'extra_separator'       => ['text', 'ou continue com', 40],
             'login_password_toggle' => ['bool', 1],
+            'footer_mode'           => ['enum', 'glpi', array_keys(self::FOOTER_MODES)],
             'footer_text'           => ['text', '', 160],
-            'login_hide_copyright'  => ['bool', 0],
+
+            // Internal pages
+            'logo_full_width'       => ['int', 100, [40, 240]],
+            'logo_full_height'      => ['int', 55, [20, 120]],
+            'color_primary'         => ['color_opt', ''],
+            'color_secondary'       => ['color_opt', ''],
+            'color_links'           => ['color_opt', ''],
+            'color_menu_bg'         => ['color_opt', ''],
+            'color_menu_fg'         => ['color_opt', ''],
+            'color_header_bg'       => ['color_opt', ''],
+            'color_header_fg'       => ['color_opt', ''],
 
             // Stored file names of the uploaded images (see ASSETS)
             'login_logo'            => ['asset', ''],
@@ -126,15 +213,46 @@ class Config
         return array_map(static fn(array $def) => $def[1], self::schema());
     }
 
+    /** Names of the optional (theme default) color fields */
+    public static function optionalColors(): array
+    {
+        return array_keys(array_filter(self::schema(), static fn($def) => $def[0] === 'color_opt'));
+    }
+
     private static ?array $cache = null;
 
     public static function get(): array
     {
         if (self::$cache === null) {
-            $stored = GlpiConfig::getConfigurationValues(self::CONTEXT, array_keys(self::schema()));
-            self::$cache = self::sanitize($stored, self::defaults());
+            $stored = GlpiConfig::getConfigurationValues(self::CONTEXT);
+            self::$cache = self::sanitize(self::migrate($stored), self::defaults());
         }
         return self::$cache;
+    }
+
+    /**
+     * Maps settings saved by 1.0.0 (before the position picker) to the
+     * current fields, so upgrading keeps the look that was configured.
+     */
+    private static function migrate(array $stored): array
+    {
+        if (!isset($stored['login_position']) && isset($stored['login_layout'])) {
+            $stored['login_position'] = [
+                'split_left'  => 'panel_right',
+                'split_right' => 'panel_left',
+                'centered'    => 'mc',
+            ][$stored['login_layout']] ?? 'panel_right';
+        }
+        if (!isset($stored['footer_mode']) && isset($stored['login_hide_copyright'])) {
+            $has_text = trim((string) ($stored['footer_text'] ?? '')) !== '';
+            $stored['footer_mode'] = (int) $stored['login_hide_copyright']
+                ? ($has_text ? 'custom' : 'hidden')
+                : ($has_text ? 'both' : 'glpi');
+        }
+        if (!isset($stored['login_logo_width']) && isset($stored['login_logo_height'])) {
+            $stored['login_logo_width'] = 240;
+        }
+        return $stored;
     }
 
     /**
@@ -142,9 +260,10 @@ class Config
      * missing/invalid ones. Unknown keys are dropped.
      *
      * With $from_form, $input is a submitted form (or preview query):
-     * unchecked checkboxes are absent and mean 0, and asset fields and
-     * the revision are never taken from it - only storeUpload() and
-     * removeAsset() may change those.
+     * unchecked checkboxes are absent and mean 0, a checked "usar padrão
+     * do tema" box empties its color, and asset fields and the revision
+     * are never taken from it - only storeUpload() and removeAsset() may
+     * change those.
      */
     public static function sanitize(array $input, array $base, bool $from_form = false): array
     {
@@ -162,6 +281,11 @@ class Config
                 continue;
             }
 
+            if ($type === 'color_opt' && $from_form && !empty($input[$field . self::DEFAULT_SUFFIX])) {
+                $clean[$field] = '';
+                continue;
+            }
+
             if (!array_key_exists($field, $input)) {
                 $clean[$field] = $type === 'bool' && $from_form ? 0 : $current;
                 continue;
@@ -173,8 +297,11 @@ class Config
                     $clean[$field] = (int) (bool) $value;
                     break;
                 case 'color':
+                case 'color_opt':
                     $value = strtolower(trim((string) $value));
-                    $clean[$field] = preg_match('/^#[0-9a-f]{6}$/', $value) ? $value : $current;
+                    $clean[$field] = preg_match('/^#[0-9a-f]{6}$/', $value) || ($type === 'color_opt' && $value === '')
+                        ? $value
+                        : $current;
                     break;
                 case 'int':
                     $clean[$field] = is_numeric($value)
@@ -208,6 +335,20 @@ class Config
     {
         $current = self::get();
         $values = self::sanitize($input, $current, true);
+        $values['revision'] = $current['revision'] + 1;
+        self::store($values);
+    }
+
+    /**
+     * Back to the default look; uploaded images are kept.
+     */
+    public static function reset(): void
+    {
+        $current = self::get();
+        $values = self::sanitize(self::defaults(), $current);
+        foreach (array_keys(self::ASSETS) as $slot) {
+            $values[$slot] = $current[$slot];
+        }
         $values['revision'] = $current['revision'] + 1;
         self::store($values);
     }

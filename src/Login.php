@@ -27,17 +27,22 @@ class Login
 
         echo '<style id="gs-login-vars">' . Style::loginCss($config) . '</style>';
 
+        // Decorative effects belong to the gradient: over a plain photo
+        // (gradient intensity 0) they would only get in the way.
+        $has_bg = Config::getAssetPath('login_bg', $config) !== null;
+        $effects = !$has_bg || $config['login_overlay_opacity'] > 0;
+
         echo '<div class="gs-hero" id="gs-hero">';
         echo '<div class="gs-hero__image"></div>';
         echo '<div class="gs-hero__gradient"></div>';
-        if ($config['login_pattern'] !== 'none') {
+        if ($effects && $config['login_pattern'] !== 'none') {
             echo '<div class="gs-hero__pattern gs-pattern-' . $e($config['login_pattern']) . '"></div>';
         }
-        if ((int) $config['login_shapes']) {
+        if ($effects && (int) $config['login_shapes']) {
             echo '<div class="gs-hero__shapes" aria-hidden="true"><span></span><span></span><span></span></div>';
         }
 
-        echo '<div class="gs-hero__content">';
+        echo '<div class="gs-hero__inner"><div class="gs-hero__content">';
         if ($config['hero_badge'] !== '') {
             echo '<span class="gs-hero__badge"><span class="gs-hero__dot"></span>' . $e($config['hero_badge']) . '</span>';
         }
@@ -54,20 +59,25 @@ class Login
             }
             echo '</ul>';
         }
-        echo '</div>';
+        echo '</div></div>';
         echo '</div>';
 
         $client = [
-            'layout'          => $config['login_layout'],
+            'position'        => $config['login_position'],
             'formTheme'       => $config['login_form_theme'],
+            'logoPosition'    => $config['login_logo_position'],
+            'textAlign'       => $config['login_text_align'],
+            'buttonStyle'     => $config['login_button_style'],
+            'titleDivider'    => (bool) $config['login_title_divider'],
+            'glass'           => $config['login_box_blur'] > 0,
             'animated'        => (bool) $config['login_bg_animated'],
             'formTitle'       => $config['form_title'],
             'formSubtitle'    => $config['form_subtitle'],
             'buttonText'      => $config['button_text'],
             'extraSeparator'  => $config['extra_separator'],
             'passwordToggle'  => (bool) $config['login_password_toggle'],
+            'footerMode'      => $config['footer_mode'],
             'footerText'      => $config['footer_text'],
-            'hideCopyright'   => (bool) $config['login_hide_copyright'],
             'preview'         => self::$preview !== null,
         ];
         echo '<script type="application/json" id="gs-login-config">'

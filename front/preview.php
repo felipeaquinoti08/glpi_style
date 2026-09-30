@@ -18,7 +18,10 @@ Login::$preview = $config;
 
 // Preview even while the redesign is switched off on the real login page
 $PLUGIN_HOOKS[Hooks::DISPLAY_LOGIN]['glpistyle'] = [Login::class, 'display'];
-foreach ([Hooks::ADD_CSS_ANONYMOUS_PAGE => 'css/login.css', Hooks::ADD_JAVASCRIPT_ANONYMOUS_PAGE => 'js/login.js'] as $hook => $file) {
+foreach ([
+    Hooks::ADD_CSS_ANONYMOUS_PAGE        => plugin_glpistyle_resource('login.css', 'css/login.css'),
+    Hooks::ADD_JAVASCRIPT_ANONYMOUS_PAGE => plugin_glpistyle_resource('login.js', 'js/login.js'),
+] as $hook => $file) {
     if (!in_array($file, (array) ($PLUGIN_HOOKS[$hook]['glpistyle'] ?? []), true)) {
         $PLUGIN_HOOKS[$hook]['glpistyle'][] = $file;
     }

@@ -72,11 +72,22 @@
         const sideColumn = hero.parentElement;
         const body = document.body;
         body.insertBefore(hero, main);
+        const isPanel = config.position.indexOf('panel_') === 0;
         body.classList.add(
             'gs-login',
-            'gs-layout-' + config.layout,
-            'gs-form-' + config.formTheme
+            'gs-pos-' + config.position,
+            isPanel ? 'gs-mode-panel' : 'gs-mode-card',
+            'gs-form-' + config.formTheme,
+            'gs-logo-' + config.logoPosition,
+            'gs-align-' + config.textAlign,
+            'gs-btn-' + config.buttonStyle
         );
+        if (config.titleDivider) {
+            body.classList.add('gs-divider');
+        }
+        if (config.glass) {
+            body.classList.add('gs-glass');
+        }
         if (config.animated) {
             body.classList.add('gs-animated');
         }
@@ -134,11 +145,16 @@
         const container = main.querySelector('.container-tight');
         if (container) {
             const copyright = container.querySelector(':scope > .text-muted');
-            if (copyright && config.hideCopyright) {
+            if (copyright && (config.footerMode === 'custom' || config.footerMode === 'hidden')) {
                 copyright.classList.add('gs-hidden');
             }
-            if (config.footerText) {
-                container.appendChild(el('div', 'gs-footer', config.footerText));
+            if (config.footerText && (config.footerMode === 'custom' || config.footerMode === 'both')) {
+                const footer = el('div', 'gs-footer', config.footerText);
+                if (copyright) {
+                    container.insertBefore(footer, copyright);
+                } else {
+                    container.appendChild(footer);
+                }
             }
         }
 
