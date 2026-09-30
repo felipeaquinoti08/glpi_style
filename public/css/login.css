@@ -752,6 +752,11 @@ body.gs-login .gs-footer {
     font-size: .84rem;
 }
 
+body.gs-footer-custom .container-tight > .text-muted,
+body.gs-footer-hidden .container-tight > .text-muted {
+    display: none !important;
+}
+
 body.gs-login .gs-hidden {
     display: none !important;
 }
