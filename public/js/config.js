@@ -56,6 +56,14 @@
     };
     let current = 'desktop';
     let dirty = false;
+    const dirtyStatus = form.querySelector('[data-dirty-status]');
+
+    function setDirty(value) {
+        dirty = value;
+        if (dirtyStatus) {
+            dirtyStatus.hidden = !value;
+        }
+    }
 
     // ---------------------------------------------------------------- preview
     //
@@ -232,7 +240,7 @@
 
     let timer = null;
     function scheduleRefresh() {
-        dirty = true;
+        setDirty(true);
         clearTimeout(timer);
         timer = setTimeout(refresh, 350);
     }
@@ -334,7 +342,7 @@
                 preview.appendChild(img);
                 preview.classList.add('has-image');
                 box.querySelector('.gs-upload__pending').hidden = false;
-                dirty = true;
+                setDirty(true);
             }
             return;
         }
@@ -406,7 +414,7 @@
             e.preventDefault();
             return;
         }
-        dirty = false;
+        setDirty(false);
     });
 
     window.addEventListener('beforeunload', function (e) {

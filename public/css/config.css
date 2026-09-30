@@ -2,6 +2,7 @@
 
 .gs-editor {
     --gs-drawer-w: min(44vw, 780px);
+    --gs-savebar-h: 64px;
     --gs-surface-2: color-mix(in srgb, var(--tblr-body-color) 4%, var(--tblr-bg-surface));
     --gs-line: var(--tblr-border-color);
     --gs-tone-orange: #f97316;
@@ -11,7 +12,8 @@
     position: relative;
     max-width: 1500px;
     margin: 0 auto;
-    padding: 8px 0 0;
+    /* Room for the fixed save bar, so it never covers the last section */
+    padding: 8px 0 calc(var(--gs-savebar-h) + 24px);
     transition: padding-right .25s ease;
 }
 
@@ -463,15 +465,49 @@
 
 /* ---------- Save bar ---------- */
 
+/* Fixed to the bottom of the window, above the page content and below the
+   GLPI sidebar; buttons are right-aligned so the sidebar never hides them */
 .gs-savebar {
-    position: sticky;
+    position: fixed;
+    right: 0;
     bottom: 0;
-    z-index: 5;
+    left: 0;
+    z-index: 1025;
     display: flex;
+    align-items: center;
     justify-content: flex-end;
-    gap: 10px;
-    padding: 14px 0 18px;
-    background: linear-gradient(to top, var(--tblr-body-bg) 70%, transparent);
+    gap: 12px;
+    height: var(--gs-savebar-h);
+    padding: 0 24px;
+    border-top: 1px solid var(--gs-line);
+    background: var(--tblr-bg-surface);
+    box-shadow: 0 -10px 30px -20px rgba(15, 23, 42, .35);
+}
+
+.gs-savebar .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.gs-savebar .btn .ti {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.gs-savebar__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 4px;
+    color: var(--tblr-warning);
+    font-size: .82rem;
+    font-weight: 500;
+}
+
+.gs-savebar__status[hidden] {
+    display: none;
 }
 
 /* ---------- Preview drawer ---------- */
@@ -480,7 +516,8 @@
     position: fixed;
     top: 72px;
     right: 16px;
-    bottom: 16px;
+    /* Stops right above the save bar instead of covering its buttons */
+    bottom: calc(var(--gs-savebar-h) + 12px);
     z-index: 1030;
     display: none;
     flex-direction: column;
@@ -608,7 +645,7 @@
     }
 
     .gs-editor.has-preview {
-        padding-bottom: 62vh;
+        padding-bottom: calc(62vh + var(--gs-savebar-h) + 24px);
     }
 
     .gs-row--3 {
