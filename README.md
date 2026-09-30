@@ -195,7 +195,7 @@ Nada disso fica na pasta do plugin nem vai para o repositório. Um backup normal
 
 ## Compatibilidade
 
-- **Plugins de login (SSO)**: botões que outros plugins adicionam à tela de login pelo hook `display_login` (por exemplo, "Entrar com Microsoft") continuam funcionando. Eles aparecem abaixo do formulário, depois do separador configurável.
+- **Plugins de login (SSO)**: botões que outros plugins adicionam à tela de login pelo hook `display_login` continuam funcionando. Eles aparecem abaixo do formulário, depois do separador configurável. O [Entrasso](https://github.com/felipeaquinoti08/entrasso) (SSO com Microsoft Entra ID) já se integra a esse layout.
 - **Texto de login do próprio GLPI** (definido em *Configurar > Geral*): continua sendo exibido dentro da caixa.
 - **Menu vertical e horizontal**: ambos são suportados. Com o menu horizontal, a barra do topo segue as cores do **Menu**. As cores de **Cabeçalho** valem para a barra de busca e usuário, que só existe com o menu vertical.
 - **Paletas do GLPI**, inclusive escuras: tudo que fica em "Usar padrão do tema" segue a paleta de cada usuário.
@@ -310,6 +310,13 @@ As melhorias são descobertas automaticamente, então uma nova não mexe nos arq
    - `css($config)`, que gera o CSS a partir de valores já validados.
 2. Se precisar de regras fixas, crie `public/css/ui/minha.css`. Ele é carregado apenas enquanto a melhoria estiver ligada.
 3. Nunca coloque no CSS um valor que não tenha passado pela validação dos campos.
+
+### Outros plugins gratuitos do mesmo autor
+
+- [Entrasso](https://github.com/felipeaquinoti08/entrasso): login único (SSO) com Microsoft Entra ID, com criação e sincronização automática de usuários.
+- [Termodocs](https://github.com/felipeaquinoti08/termodoc): termos de entrega e devolução de equipamentos com assinatura eletrônica.
+
+Os três são gratuitos e distribuídos sob a mesma licença (GPL-3.0-or-later).
 
 ---
 

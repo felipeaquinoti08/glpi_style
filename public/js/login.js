@@ -135,18 +135,22 @@
 
         // The core side column now only holds other plugins' output
         // (e.g. an SSO button) - show it under the form with a separator.
+        // Evaluated now and again once the page is parsed: plugins printed
+        // after this one in the same column don't exist yet at this point.
         if (sideColumn && sideColumn.classList.contains('col-auto')) {
-            const hasContent = Array.from(sideColumn.children).some(function (child) {
-                return !['SCRIPT', 'STYLE'].includes(child.tagName);
-            });
-            if (hasContent) {
-                sideColumn.classList.add('gs-extra');
-                if (config.extraSeparator) {
+            const layoutSideColumn = function () {
+                const hasContent = Array.from(sideColumn.children).some(function (child) {
+                    return !['SCRIPT', 'STYLE'].includes(child.tagName) && !child.classList.contains('gs-separator');
+                });
+                sideColumn.classList.toggle('gs-extra', hasContent);
+                sideColumn.classList.toggle('gs-empty', !hasContent);
+                const separator = sideColumn.querySelector(':scope > .gs-separator');
+                if (hasContent && config.extraSeparator && !separator) {
                     sideColumn.insertBefore(el('div', 'gs-separator', config.extraSeparator), sideColumn.firstChild);
                 }
-            } else {
-                sideColumn.classList.add('gs-empty');
-            }
+            };
+            layoutSideColumn();
+            document.addEventListener('DOMContentLoaded', layoutSideColumn);
         }
 
         const container = main.querySelector('.container-tight');
