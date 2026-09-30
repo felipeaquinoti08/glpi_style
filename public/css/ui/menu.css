@@ -1,0 +1,199 @@
+/*
+ * GLPI Style - "Menu moderno". Values come from MenuFeature::css().
+ *
+ * The core rules (css/includes/components/_global-menu.scss) are written
+ * as `.sidebar #navbar-menu .nav-item .nav-link`; the extra `body` /
+ * `:not(.navbar-collapsed)` here outrank them without !important, and the
+ * collapsed (70px, icons only) sidebar keeps the core geometry.
+ */
+
+/* ---------- Vertical sidebar, expanded ---------- */
+
+body:not(.navbar-collapsed) .sidebar #navbar-menu .navbar-nav {
+    gap: 2px;
+    padding: 4px 0;
+}
+
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link {
+    position: relative;
+    min-height: 38px;
+    margin: 0 10px;
+    padding: var(--gs-menu-py) 12px !important;
+    border-left: 0;
+    border-radius: var(--gs-menu-radius);
+    color: color-mix(in srgb, var(--glpi-mainmenu-fg) 82%, transparent);
+    font-weight: 500;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link i {
+    width: 20px;
+    margin-right: .55rem;
+    font-size: 1.05rem;
+    text-align: center;
+    opacity: .85;
+}
+
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item:hover .nav-link {
+    background-color: color-mix(in srgb, var(--glpi-mainmenu-fg) 8%, transparent);
+    color: var(--glpi-mainmenu-fg);
+}
+
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link.active,
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link.show {
+    background-color: var(--gs-menu-active-bg);
+    color: var(--gs-menu-active-fg);
+    font-weight: 600;
+}
+
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link.active i,
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link.show i {
+    color: var(--gs-menu-active-icon);
+    opacity: 1;
+}
+
+/* "Indicador lateral" style: bar on the sidebar edge */
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link.active::before {
+    content: "";
+    position: absolute;
+    top: 22%;
+    bottom: 22%;
+    left: -10px;
+    width: var(--gs-menu-bar-w);
+    border-radius: 0 3px 3px 0;
+    background: var(--gs-menu-accent);
+}
+
+/* Open section's submenu */
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link.active + .dropdown-menu,
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link.show + .dropdown-menu {
+    margin: 2px 0 6px;
+    padding: 2px 0;
+    background-color: transparent;
+}
+
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link + .dropdown-menu .dropdown-item {
+    min-height: 32px;
+    margin: 1px 10px 1px 30px;
+    padding: .32rem .7rem;
+    border-left: 0;
+    border-radius: calc(var(--gs-menu-radius) * .8);
+    color: color-mix(in srgb, var(--glpi-mainmenu-fg) 72%, transparent);
+    font-weight: 400;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link + .dropdown-menu .dropdown-item:hover {
+    background-color: color-mix(in srgb, var(--glpi-mainmenu-fg) 8%, transparent);
+    color: var(--glpi-mainmenu-fg);
+}
+
+body:not(.navbar-collapsed) .sidebar #navbar-menu .nav-item .nav-link + .dropdown-menu .dropdown-item.active {
+    background-color: color-mix(in srgb, var(--gs-menu-accent) 18%, transparent);
+    color: var(--glpi-mainmenu-fg);
+    font-weight: 600;
+}
+
+/* ---------- Vertical sidebar, collapsed (icons only) ---------- */
+
+body.navbar-collapsed .sidebar #navbar-menu .nav-item .nav-link.active {
+    border-left-color: transparent;
+    background-color: var(--gs-menu-active-bg);
+    color: var(--gs-menu-active-fg);
+}
+
+body.navbar-collapsed .sidebar #navbar-menu .nav-item .nav-link + .dropdown-menu {
+    overflow: hidden;
+    border-radius: 0 calc(var(--gs-menu-radius) + 4px) calc(var(--gs-menu-radius) + 4px) 0;
+    box-shadow: 0 18px 40px -14px rgba(15, 23, 42, .45);
+}
+
+/* ---------- Horizontal top bar ---------- */
+
+.topbar #navbar-menu .navbar-nav {
+    gap: 2px;
+}
+
+.topbar #navbar-menu .nav-item .nav-link {
+    margin: 6px 0;
+    padding: var(--gs-menu-py) .8rem !important;
+    border-radius: var(--gs-menu-radius);
+    font-weight: 500;
+    transition: background-color .15s ease, opacity .15s ease;
+}
+
+.topbar #navbar-menu .nav-item:hover .nav-link {
+    background-color: color-mix(in srgb, var(--glpi-mainmenu-fg) 10%, transparent);
+}
+
+.topbar #navbar-menu .nav-item.active .nav-link {
+    position: relative;
+    background-color: var(--gs-menu-active-bg);
+    color: var(--gs-menu-active-fg);
+    font-weight: 600;
+    opacity: 1;
+}
+
+.topbar #navbar-menu .nav-item.active .nav-link i {
+    color: var(--gs-menu-active-icon);
+}
+
+/* "Indicador lateral" becomes an underline on the horizontal bar */
+.topbar #navbar-menu .nav-item.active .nav-link::before {
+    content: "";
+    position: absolute;
+    right: 18%;
+    bottom: -6px;
+    left: 18%;
+    height: var(--gs-menu-bar-w);
+    border-radius: 3px 3px 0 0;
+    background: var(--gs-menu-accent);
+}
+
+/* Submenus of the top bar (regular dropdowns on the page surface) */
+.topbar #navbar-menu .dropdown-menu {
+    margin-top: 6px;
+    padding: 8px;
+    border: 0;
+    border-radius: calc(var(--gs-menu-radius) + 4px);
+    box-shadow: 0 20px 44px -14px rgba(15, 23, 42, .3), 0 0 0 1px rgba(15, 23, 42, .06);
+}
+
+.topbar #navbar-menu .dropdown-menu .dropdown-header {
+    padding: .4rem .7rem .3rem;
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    opacity: .6;
+}
+
+.topbar #navbar-menu .dropdown-menu .dropdown-item {
+    margin: 1px 0;
+    padding: .42rem .7rem;
+    border-radius: calc(var(--gs-menu-radius) * .8);
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.topbar #navbar-menu .dropdown-menu .dropdown-item i {
+    width: 18px;
+    opacity: .75;
+    text-align: center;
+}
+
+.topbar #navbar-menu .dropdown-menu .dropdown-item:hover {
+    background-color: color-mix(in srgb, var(--gs-menu-accent) 10%, transparent);
+}
+
+.topbar #navbar-menu .dropdown-menu .dropdown-item.active {
+    background-color: color-mix(in srgb, var(--gs-menu-accent) 16%, transparent);
+    color: inherit;
+    font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sidebar #navbar-menu *,
+    .topbar #navbar-menu * {
+        transition: none !important;
+    }
+}
