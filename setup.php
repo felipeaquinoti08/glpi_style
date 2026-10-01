@@ -37,6 +37,13 @@ function plugin_glpistyle_resource(string $key, string $file): string
     return 'front/resource.php?f=' . $key . '&m=' . (@filemtime(__DIR__ . '/public/' . $file) ?: 0);
 }
 
+/** Last change of the files that generate front/style.css.php */
+function plugin_glpistyle_code_version(): int
+{
+    $files = array_merge([__DIR__ . '/src/Style.php'], glob(__DIR__ . '/src/Ui/*.php') ?: []);
+    return max(array_map(static fn($file) => (int) @filemtime($file), $files));
+}
+
 function plugin_init_glpistyle(): void
 {
     global $PLUGIN_HOOKS;
@@ -61,7 +68,10 @@ function plugin_init_glpistyle(): void
 
     // Logo/favicon overrides, on every page (logged or not). The revision
     // in the query string busts browser caches right after each save.
-    $style_css = 'front/style.css.php?r=' . $config['revision'];
+    // Versioned by the settings revision *and* by the code that builds it,
+    // or an update of the plugin would keep being served from the browser
+    // cache (style.css.php is cached for a year).
+    $style_css = 'front/style.css.php?r=' . $config['revision'] . '&m=' . plugin_glpistyle_code_version();
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['glpistyle'] = [$style_css];
     $PLUGIN_HOOKS[Hooks::ADD_CSS_ANONYMOUS_PAGE]['glpistyle'] = [$style_css];
 
