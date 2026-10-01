@@ -99,7 +99,7 @@ class CardsFeature extends Feature
                 . $ui['range']('ui_fields_radius', 'Arredondamento', 0, 20, 'px'), 'Campos de texto, listas de seleção e o foco na cor primária.')
             . $ui['card']('ti-click', 'Botões e abas', $ui['range']('ui_buttons_radius', 'Arredondamento dos botões', 0, 24, 'px')
                 . $ui['select']('ui_tabs_style', 'Abas', self::TAB_STYLES)
-                . $ui['switch']('ui_sticky_buttons', 'Botões de salvar fixos no rodapé', 'A barra com Salvar/Excluir acompanha a rolagem em formulários longos.'))
+                . $ui['switch']('ui_sticky_buttons', 'Botões de salvar fixos no rodapé', 'A barra com Salvar/Excluir fica presa no rodapé da janela, sempre visível, sem cobrir os campos.'))
             . '</div>';
     }
 
@@ -143,10 +143,18 @@ class CardsFeature extends Feature
         }
 
         if ((int) $config['ui_sticky_buttons']) {
-            $css .= '.page-body .form-button-separator{position:sticky;bottom:0;z-index:5;'
-                . 'background:color-mix(in srgb,var(--tblr-bg-surface) 88%,transparent) !important;'
-                . '-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);'
-                . 'box-shadow:0 -10px 24px -18px rgba(15,23,42,.4);}';
+            // Fixed to the bottom of the window (a sticky bar floated over
+            // the fields of long forms). Only the item's main form, never
+            // forms shown in modals; the page reserves the bar's height so
+            // nothing ends up hidden under it.
+            $bar = '.page-body form#main-form .form-button-separator';
+            $css .= $bar . ':not(.modal *){position:fixed;left:0;right:0;bottom:0;z-index:1025;'
+                . 'margin:0 !important;padding:10px 24px !important;min-height:60px;align-items:center !important;'
+                . 'border-top:1px solid var(--tblr-border-color) !important;border-radius:0 !important;'
+                . 'background:var(--tblr-bg-surface) !important;'
+                . 'box-shadow:0 -10px 30px -20px rgba(15,23,42,.35);}'
+                . 'body:has(form#main-form .form-button-separator:not(.modal *)) .page-body{padding-bottom:84px;}'
+                . '@media print{' . $bar . '{position:static;box-shadow:none;}}';
         }
 
         return $css;
