@@ -299,6 +299,25 @@ foreach ([
 $colors .= '</div>';
 echo $section('colors', 'ti-brush', 'purple', 'Cores', 'Aplicadas por cima do tema de cores escolhido por cada usuário', $colors);
 
+// --- E-mails (src/Mail.php) ---------------------------------------------
+$current_signature = trim((string) ($CFG_GLPI['mailing_signature'] ?? ''));
+$mail_setup_url = $CFG_GLPI['root_doc'] . '/front/notificationmailingsetting.form.php';
+$mails = '<div class="gs-row gs-row--2">';
+$mails .= $card('ti-signature-off', 'Assinatura', $switch(
+    'mail_hide_signature',
+    'Remover a assinatura dos e-mails',
+    $current_signature !== ''
+        ? 'Hoje vai no fim de todo e-mail: "-- ' . mb_strimwidth(preg_replace('/\s+/u', ' ', strip_tags($current_signature)), 0, 80, '…') . '".'
+        : 'Nenhuma assinatura configurada no GLPI no momento.'
+) . '<a class="gs-card__link" href="' . $e($mail_setup_url) . '"><i class="ti ti-external-link"></i> Editar a assinatura no GLPI</a>', 'Tira o bloco "--" com a assinatura de Configurar > Notificações > Configuração de e-mails (ou a da entidade).');
+$mails .= $card('ti-mail-off', 'Rodapé do GLPI', $switch(
+    'mail_hide_footer',
+    'Remover "Automaticamente gerado por ' . $CFG_GLPI['app_name'] . '"',
+    'A linha que o GLPI coloca no fim de todos os e-mails, sem opção para desligar.'
+), 'Vale para todos os e-mails: chamados, plugins, testes de notificação.');
+$mails .= '</div>';
+echo $section('mails', 'ti-mail', 'teal', 'E-mails', 'Assinatura e rodapé que o GLPI coloca no fim de todo e-mail enviado', $mails);
+
 // --- Interface improvements (src/Ui/*Feature.php) -------------------------
 $ui = compact('card', 'switch', 'text', 'textarea', 'number', 'select', 'range', 'color', 'color_opt', 'help', 'e');
 foreach (Registry::all() as $feature) {
