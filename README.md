@@ -79,6 +79,10 @@ Quatro melhorias independentes. Cada uma tem a sua chave "Ativar esta melhoria" 
 | **Listas e tabelas** | Densidade das linhas (automática como o GLPI, compacta, normal ou confortável), linha destacada sob o mouse, zebrado opcional, cabeçalho em maiúsculas discretas ou colorido, links neutros, lista com cantos arredondados e paginação em pílulas. |
 | **Fonte e densidade** | Fonte do GLPI inteiro, tamanho base de 12 a 17 px, espaçamento compacto, normal ou confortável, e títulos mais fortes. |
 
+### E-mails
+
+O GLPI coloca no fim de **todo** e-mail a assinatura ("-- Assinatura") e a linha "Automaticamente gerado por GLPI", que o próprio GLPI não deixa desligar. O GLPI Style tira as duas de todos os e-mails: chamados, testes de notificação e plugins. As duas opções já vêm ligadas e podem ser desligadas na seção **E-mails** da configuração.
+
 ### Editor
 
 - Página **Identidade visual**, organizada em seções recolhíveis, com ajuda (**?**) em cada campo.
