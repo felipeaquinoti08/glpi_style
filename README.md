@@ -318,9 +318,10 @@ As melhorias são descobertas automaticamente, então uma nova não mexe nos arq
 ### Outros plugins gratuitos do mesmo autor
 
 - [Entrasso](https://github.com/felipeaquinoti08/entrasso): login único (SSO) com Microsoft Entra ID, com criação e sincronização automática de usuários.
-- [Termodocs](https://github.com/felipeaquinoti08/termodoc): termos de entrega e devolução de equipamentos com assinatura eletrônica.
+- [Termodocs](https://github.com/felipeaquinoti08/termodoc): termos de entrega e devolução de equipamentos com assinatura eletrônica, lembretes por e-mail e link seguro para quem não entra no GLPI.
+- [Sentinela](https://github.com/felipeaquinoti08/sentinela): auditoria de softwares instalados, com políticas de lista branca e lista negra e alertas por e-mail.
 
-Os três são gratuitos e distribuídos sob a mesma licença (GPL-3.0-or-later).
+Todos são gratuitos e distribuídos sob a mesma licença (GPL-3.0-or-later).
 
 ---
 
