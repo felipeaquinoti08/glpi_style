@@ -228,6 +228,10 @@ class Config
             'color_header_bg'       => ['color_opt', ''],
             'color_header_fg'       => ['color_opt', ''],
 
+            // E-mails sent by GLPI (see Mail)
+            'mail_hide_signature'   => ['bool', 0],
+            'mail_hide_footer'      => ['bool', 0],
+
             // Stored file names of the uploaded images (see ASSETS)
             'login_logo'            => ['asset', ''],
             'login_bg'              => ['asset', ''],
